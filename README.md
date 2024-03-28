@@ -1,17 +1,19 @@
-This is a [Next.js] Admin Dashboard.
+# Tramet Frontend
 
-## Initialize node modules
+Online dashboard to manage the statistics, logistic, and operations of the transport of Tramet ©️.
 
-```bash
-npm install
+## Install node modules
+
+```
+bun install
 ```
 
 ## Getting Started
 
-First, run the development server:
+Initialize dev server.
 
-```bash
-npm run dev
+```
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open `localhost:3000` in your browser.
