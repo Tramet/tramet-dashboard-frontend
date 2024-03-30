@@ -1,13 +1,21 @@
 import { HeaderLogo } from "@trm/_components/header-logo";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
+import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import classNames from "classnames";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+const COMPANY = {
+  name: "TRAMET",
+};
+
 const CompanyLogo = () => {
   const { setSelectedArea } = useAreaSelection();
+  const { setSelectedDepartment } = useDepartmentSelection();
   const [mounted, setMounted] = useState(false);
+
   const clearRoute = () => {
+    setSelectedDepartment(null);
     setSelectedArea(null);
   };
 
@@ -20,7 +28,7 @@ const CompanyLogo = () => {
           className={classNames(
             "font-bold text-2xl min-w-max text-sidebar-foreground"
           )}>
-          TRAMET
+          {COMPANY.name}
         </h3>
       </div>
     </Link>

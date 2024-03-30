@@ -19,8 +19,10 @@ interface CarouselAreasProps {
   className?: string;
   setSelectedArea: (area: string | null) => void;
 }
-
-export function CarouselAreas({ setSelectedArea }: CarouselAreasProps) {
+export function CarouselAreas({
+  setSelectedArea,
+  className,
+}: CarouselAreasProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { selectedDepartment } = useDepartmentSelection();
@@ -34,31 +36,33 @@ export function CarouselAreas({ setSelectedArea }: CarouselAreasProps) {
 
   return (
     <div
-      className="flex justify-center items-center h-full"
+      className={classNames(
+        "flex justify-center items-center select-none",
+        isDragging ? "cursor-grabbing" : "cursor-pointer"
+      )}
       onMouseDown={() => setIsDragging(true)}
       onMouseUp={() => setIsDragging(false)}
       onMouseEnter={() => setIsDragging(false)}
-      onMouseLeave={() => setIsDragging(false)}
-      style={{
-        cursor: isDragging ? "grabbing" : "pointer",
-        userSelect: "none",
-      }}>
+      onMouseLeave={() => setIsDragging(false)}>
       <Carousel
         opts={{
           dragFree: true,
           align: "start",
         }}
-        className="w-full max-w-sm ml-12">
-        <CarouselContent className="-ml-1 h-full">
+        className="w-full max-w-full xl:max-w-sm xl:ml-12 p-2">
+        <CarouselContent className="-ml-1">
           {AREAS_LIST.map((area) => (
             <CarouselItem
               key={area.id}
-              className={classNames("basis-1/4 pl-1 text-wrap cursor-pointer", {
-                "cursor-grabbing": isDragging,
-              })}>
+              className={classNames(
+                " basis-1/4 sm:basis-1/5 md:basis-1/6 xl:basis-1/4 pl-1 text-wrap cursor-pointer",
+                {
+                  "cursor-grabbing": isDragging,
+                }
+              )}>
               <Card
                 className={classNames(
-                  "flex justify-center items-center h-full transition-all hover:bg-input rounded-sm",
+                  "flex justify-center items-center h-[70px] xl:h-full transition-all hover:bg-input rounded-sm",
                   {
                     "bg-input text-primary": new RegExp(
                       `^/${selectedDepartment}/${area.path}(?:/.+)?$`

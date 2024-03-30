@@ -166,7 +166,7 @@ export function Combobox({
         </Popover>
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>
+          <DrawerTrigger asChild className="w-full">
             <Button
               variant="outline"
               role="combobox"
@@ -194,12 +194,27 @@ export function Combobox({
                   name={name}
                 />
                 {selectedDepartment === "supply-chain" && (
-                  <CarouselAreas
-                    setSelectedArea={
-                      handleAreaSelect as (area: string | null) => void
-                    }
-                  />
+                  <div className="w-full pt-5 border-t">
+                    <CarouselAreas
+                      setSelectedArea={
+                        handleAreaSelect as (area: string | null) => void
+                      }
+                    />
+                  </div>
                 )}
+                <Button
+                  className="mt-5"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedDepartment(""); // Deseleccionar el departamento
+                    setSelectedArea(""); // Deseleccionar el área
+                    setSelectedValue(""); // Deseleccionar el valor seleccionado del combobox
+                    onChange?.(null); // Llamar a onChange con null para reflejar los cambios
+                    // setOpen(false); // Cerrar el Drawer
+                    // setIsSheetOpen?.(false); // Cerrar el Sheet
+                  }}>
+                  Deseleccionar
+                </Button>
               </>
             ) : (
               <ComboboxContent

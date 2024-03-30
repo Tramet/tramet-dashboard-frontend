@@ -37,26 +37,26 @@ const USER: UserDetails = {
 export default function Header() {
   const { selectedDepartment, setSelectedDepartment } =
     useDepartmentSelection();
-  const { setSelectedArea } = useAreaSelection();
+  const { selectedArea, setSelectedArea } = useAreaSelection();
 
   const handleDepartmentChange = (value: string | null) => {
     setSelectedDepartment(value);
   };
 
   const headerStyle = classNames(
-    "bg-navbar fixed w-full z-40 px-4 shadow-sm shadow-slate-500/40 ",
+    "bg-navbar fixed w-full z-40 px-4 shadow-md shadow-slate-500/40 ",
     {}
   );
 
   return (
     <header className={headerStyle}>
-      <div className="flex h-16 items-center justify-end 2xl:justify-between ">
-        <section className="hidden 2xl:flex items-center gap-x-4">
+      <div className="flex h-16 items-center justify-end md:justify-between ">
+        <section className="hidden md:flex items-center gap-x-4">
           {/* Company Selection */}
           <CompanyLogo />
 
           {/* Site/Department combobox & ScrollArea areas */}
-          <div className="hidden 2xl:flex justify-center items-center gap-x-2 p-2 z-50">
+          <div className="hidden xl:flex justify-center items-center gap-x-2 p-2 z-50">
             <Combobox
               isDesktop={true}
               name="Sitios"
@@ -68,24 +68,29 @@ export default function Header() {
               comboboxList={COMBOBOX_LISTS.departments}
               onChange={handleDepartmentChange}
             />
-
             {selectedDepartment === "supply-chain" && (
               <CarouselAreas setSelectedArea={setSelectedArea} />
             )}
           </div>
         </section>
 
-        {/* Theme switcher & User details */}
+        {/* Right side items */}
         <section className="flex items-center justify-between">
+          {/* Notifications Popover */}
           <section>
             <NotificationsPopover />
           </section>
 
-          <div className="p-2">
+          <section className="p-2">
             <ThemeSwitcher />
-          </div>
+          </section>
 
-          <section className="hidden 2xl:flex gap-x-2">
+          {/* MobileSidebar trigger */}
+          <section className="flex xl:hidden justify-center items-center">
+            <MobileSidebar />
+          </section>
+
+          <section className="hidden xl:flex gap-x-2">
             <div className="h-10 w-10 rounded-full bg-sidebar-muted flex items-center justify-center text-center">
               <Avatar className="h-10 w-10 rounded-full">
                 <AvatarImage
@@ -100,15 +105,11 @@ export default function Header() {
               <span className="text-xs text-accent-foreground opacity-70">
                 {USER.position}
               </span>
-              <span className="text-sm text-sidebar-foreground">
+              <span className="text-md text-sidebar-foreground">
                 {USER.fullName}
               </span>
             </div>
           </section>
-        </section>
-        {/* MobileSidebar trigger */}
-        <section className="flex 2xl:hidden justify-center items-center">
-          <MobileSidebar />
         </section>
       </div>
     </header>

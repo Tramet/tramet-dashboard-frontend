@@ -50,17 +50,21 @@ export const NetworkStatus = () => {
   return (
     <>
       {showMessage && (
-        <div className="w-[350px] fixed flex justify-start items-center border font-bold h-20 bottom-10 left-5 bg-sidebar-muted text-sidebar-foreground p-2 rounded-lg z-50 shadow-2xl gap-2">
-          {isOnline ? (
-            <Wifi color="green" width={50} />
-          ) : (
-            <WifiOff color="red" width={50} />
-          )}
-          <p className="flex justify-start items-center">{messageContent}</p>
+        <div className="w-[330px] fixed flex justify-evenly items-center border font-bold h-20 bottom-10 left-10 bg-primary text-background p-2 rounded-lg z-50 shadow-2xl gap-2">
+          <div className="p-2 rounded-full bg-input mr-2">
+            {isOnline ? (
+              <Wifi color="green" className="size-7" />
+            ) : (
+              <WifiOff color="red" className="size-7" />
+            )}
+          </div>
+          <p className="flex justify-start items-center text-pretty">
+            {messageContent}
+          </p>
           <div>
             <X
               onClick={handleCloseMessage}
-              className="transition-all hover:bg-input cursor-pointer size-10 p-2 rounded-full"
+              className="transition-all hover:bg-muted hover:text-sidebar-foreground cursor-pointer size-10 p-2 rounded-full"
             />
           </div>
         </div>

@@ -38,7 +38,7 @@ export function MobileSidebar() {
   const { selectedDepartment, setSelectedDepartment } =
     useDepartmentSelection();
 
-  const { setSelectedArea } = useAreaSelection();
+  const { selectedArea, setSelectedArea } = useAreaSelection();
 
   const handleDepartmentChange = (value: string | null) => {
     setSelectedDepartment(value);
@@ -48,16 +48,20 @@ export function MobileSidebar() {
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger asChild>
-        <Button className="p-2 bg-sidebar-muted text-sidebar-muted-foreground hover:bg-input">
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-md p-0 bg-foreground hover:bg-muted text-background hover:text-muted-foreground border-0 outline-none">
           <Menu width={20} />
         </Button>
       </SheetTrigger>
       <SheetContent
         side="left"
         className="flex flex-col justify-between items-start pl-6 pb-6 pt-6 pr-10">
+        <SheetHeader></SheetHeader>
         <div className="w-full flex flex-col justify-center items-start space-y-4">
           <CompanyLogo />
-          <div className="flex flex-col space-y-2 justify-center items-start gap-x-2 p-2 z-50">
+          <div className="w-full flex flex-col space-y-2 justify-center items-start gap-x-2 p-2 z-50">
             <Combobox
               isDesktop={false}
               name="Sitios"
@@ -71,12 +75,39 @@ export function MobileSidebar() {
               setIsSheetOpen={setIsSheetOpen}
             />
           </div>
-          <div className="flex flex-col gap-2 px-1 min-w-auto">
+
+          {/* Display department and area */}
+          <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
+            {selectedDepartment && (
+              <p>
+                <span className="text-sm text-accent-foreground">
+                  Departamento:{" "}
+                  <span className="text-md text-sidebar-foreground">
+                    {selectedDepartment}
+                  </span>
+                </span>
+              </p>
+            )}
+            {selectedDepartment === "supply-chain" && (
+              <p>
+                <span className="text-sm text-accent-foreground">
+                  Área:{" "}
+                  <span className="text-md text-sidebar-foreground">
+                    {selectedArea}
+                  </span>
+                </span>
+              </p>
+            )}
+          </section>
+
+          {/* Display sidebar items when department and area are selected */}
+          <div className="w-full max-h-[15rem] overflow-y-auto flex md:hidden flex-col gap-2 px-1 min-w-auto">
             {SIDENAV_ITEMS.map((item, idx) => {
               return <SideBarMenuGroup key={idx} menuGroup={item} />;
             })}
           </div>
         </div>
+        {/* FOOTER SIDEBAR */}
         <SheetFooter>
           <section className="flex gap-x-2">
             <div className="h-10 w-10 rounded-full bg-sidebar-muted flex items-center justify-center text-center">
