@@ -16,11 +16,11 @@ const SideBarMenuGroup = ({ menuGroup }: { menuGroup: SideNavItemGroup }) => {
 
   return (
     <>
-      {selectedArea &&
+      {selectedArea ? (
         menuGroup.menuList?.map((item, index) => (
           <SideBarMenuItem key={index} item={item} />
-        ))}
-      {!selectedArea && (
+        ))
+      ) : (
         <div className="text-accent-foreground text-sm text-center">
           {toggleCollapse ? (
             <div className="flex justify-center items-center">
