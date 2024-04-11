@@ -1,8 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
 import { ThemeSwitcher } from "@trm/_components/theme-switcher";
-import { HeaderLogo } from "@trm/_components/header-logo";
-
 import { Combobox } from "@trm/_layout/combobox/combobox";
 import { COMBOBOX_LISTS } from "@trm/_layout/combobox/comboboxLists";
 import { CarouselAreas } from "@trm/_layout/carousel-areas/carousel-areas";
@@ -15,6 +12,9 @@ import { NotificationsPopover } from "../notifications-popover/notifications-pop
 import Link from "next/link";
 import { MobileSidebar } from "../mobile-sidebar/mobile-sidebar";
 import CompanyLogo from "../company-logo/company-logo";
+import Image from "next/image";
+import adminBtn from "../../../public/adminBtn.png";
+import { usePathname } from "next/navigation";
 
 export type UserDetails = {
   id: number;
@@ -35,6 +35,8 @@ const USER: UserDetails = {
 };
 
 export default function Header() {
+  const pathname = usePathname();
+
   const { selectedDepartment, setSelectedDepartment } =
     useDepartmentSelection();
   const { selectedArea, setSelectedArea } = useAreaSelection();
@@ -54,24 +56,27 @@ export default function Header() {
         <section className="hidden md:flex items-center gap-x-4">
           {/* Company Selection */}
           <CompanyLogo />
-
-          {/* Site/Department combobox & ScrollArea areas */}
-          <div className="hidden xl:flex justify-center items-center gap-x-2 p-2 z-50">
-            <Combobox
-              isDesktop={true}
-              name="Sitios"
-              comboboxList={COMBOBOX_LISTS.sites}
-            />
-            <Combobox
-              isDesktop={true}
-              name="Departamentos"
-              comboboxList={COMBOBOX_LISTS.departments}
-              onChange={handleDepartmentChange}
-            />
-            {selectedDepartment === "supply-chain" && (
-              <CarouselAreas setSelectedArea={setSelectedArea} />
-            )}
-          </div>
+          {
+            // Only show Site/Department combobox & ScrollArea areas on the main page
+            !pathname.includes("/admin") && (
+              <div className="hidden xl:flex justify-center items-center gap-x-2 p-2 z-50">
+                <Combobox
+                  isDesktop={true}
+                  name="Sitios"
+                  comboboxList={COMBOBOX_LISTS.sites}
+                />
+                <Combobox
+                  isDesktop={true}
+                  name="Departamentos"
+                  comboboxList={COMBOBOX_LISTS.departments}
+                  onChange={handleDepartmentChange}
+                />
+                {selectedDepartment === "supply-chain" && (
+                  <CarouselAreas setSelectedArea={setSelectedArea} />
+                )}
+              </div>
+            )
+          }
         </section>
 
         {/* Right side items */}
@@ -90,7 +95,7 @@ export default function Header() {
             <MobileSidebar />
           </section>
 
-          <section className="hidden xl:flex gap-x-2">
+          <section className="hidden xl:flex justify-center items-center gap-x-2">
             <div className="h-10 w-10 rounded-full bg-sidebar-muted flex items-center justify-center text-center">
               <Avatar className="h-10 w-10 rounded-full">
                 <AvatarImage
@@ -105,10 +110,16 @@ export default function Header() {
               <span className="text-xs text-accent-foreground opacity-70">
                 {USER.position}
               </span>
-              <span className="text-md text-sidebar-foreground">
+              <span className="text-sm text-sidebar-foreground">
                 {USER.fullName}
               </span>
             </div>
+          </section>
+          {/* Administrator icon */}
+          <section className="bg-foreground rounded-full ml-2 w-12 xl:w-14 px-2 flex justify-center items-center">
+            <Link href="/admin">
+              <Image src={adminBtn} alt="admin button" className="w-9" />
+            </Link>
           </section>
         </section>
       </div>
