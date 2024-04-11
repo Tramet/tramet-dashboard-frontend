@@ -1,6 +1,6 @@
 # Tramet Frontend
 
-Online dashboard to manage the statistics, logistic, and operations of the transport of Tramet ©️.
+Online dashboard to manage the statistics, logistic, and operations aswell as the servies that Tramet ©️ offers.
 
 ## Install node modules
 
