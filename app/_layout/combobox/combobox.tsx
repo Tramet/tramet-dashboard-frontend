@@ -171,7 +171,7 @@ export function Combobox({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className={`w-[140px] max-w-[140px] text-xs flex justify-between items-center text-popover-foreground hover:bg-input overflow-hidden text-wrap`}
+              className={`w-full min-w-[150px] sm:max-w-[250px] text-xs flex justify-between items-center text-popover-foreground hover:bg-input overflow-hidden text-wrap`}
               onClick={handleDrawerClick}>
               <p className="text-start">
                 {selectedValue
@@ -203,7 +203,7 @@ export function Combobox({
                   </div>
                 )}
                 <Button
-                  className="mt-5"
+                  className="mt-5 w-full"
                   variant="outline"
                   onClick={() => {
                     setSelectedDepartment(""); // Deseleccionar el departamento

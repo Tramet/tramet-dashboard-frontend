@@ -7,5 +7,12 @@ export type SideNavItem = {
 };
 
 export type SideNavItemGroup = {
-  menuList?: SideNavItem[];
+  admin?: {
+    title: string;
+    items: SideNavItem[];
+  };
+  home?: {
+    title: string;
+    items: SideNavItem[];
+  };
 };

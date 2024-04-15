@@ -24,6 +24,7 @@ import { type UserDetails } from "@trm/_layout/header/header";
 import { AvatarFallback } from "@trm/_components/ui/avatar";
 import { SIDENAV_ITEMS } from "@trm/sidebar-modules";
 import SideBarMenuGroup from "@trm/_components/sidebar-menu-group";
+import { usePathname } from "next/navigation";
 
 const USER: UserDetails = {
   id: 1,
@@ -35,6 +36,10 @@ const USER: UserDetails = {
 };
 
 export function MobileSidebar() {
+  const pathname = usePathname();
+
+  const isAdminPage = pathname.includes("/admin");
+
   const { selectedDepartment, setSelectedDepartment } =
     useDepartmentSelection();
 
@@ -57,51 +62,58 @@ export function MobileSidebar() {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="flex flex-col justify-between items-start pl-6 pb-6 pt-6 pr-10">
-        <SheetHeader></SheetHeader>
-        <div className="w-full flex flex-col justify-center items-start space-y-4">
+        className="flex flex-col justify-between items-start pl-6 pb-6 pt-6 pr-10 min-w-[250px] max-w-[384px]">
+        <SheetHeader>
           <CompanyLogo />
-          <div className="w-full flex flex-col space-y-2 justify-center items-start gap-x-2 p-2 z-50">
-            <Combobox
-              isDesktop={false}
-              name="Sitios"
-              comboboxList={COMBOBOX_LISTS.sites}
-            />
-            <Combobox
-              isDesktop={false}
-              name="Departamentos"
-              comboboxList={COMBOBOX_LISTS.departments}
-              onChange={handleDepartmentChange}
-              setIsSheetOpen={setIsSheetOpen}
-            />
-          </div>
+        </SheetHeader>
+        <div className="w-full flex flex-col justify-center items-start space-y-4">
+          {!isAdminPage && (
+            <>
+              <div className="w-full flex flex-col space-y-2 justify-center items-start gap-x-2 p-2 z-50">
+                <Combobox
+                  isDesktop={false}
+                  name="Sitios"
+                  comboboxList={COMBOBOX_LISTS.sites}
+                />
+                <Combobox
+                  isDesktop={false}
+                  name="Departamentos"
+                  comboboxList={COMBOBOX_LISTS.departments}
+                  onChange={handleDepartmentChange}
+                  setIsSheetOpen={setIsSheetOpen}
+                />
+              </div>
 
-          {/* Display department and area */}
-          <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
-            {selectedDepartment && (
-              <p>
-                <span className="text-sm text-accent-foreground">
-                  Departamento:{" "}
-                  <span className="text-md text-sidebar-foreground">
-                    {selectedDepartment}
-                  </span>
-                </span>
-              </p>
-            )}
-            {selectedDepartment === "supply-chain" && (
-              <p>
-                <span className="text-sm text-accent-foreground">
-                  Área:{" "}
-                  <span className="text-md text-sidebar-foreground">
-                    {selectedArea}
-                  </span>
-                </span>
-              </p>
-            )}
-          </section>
+              {/* Display department and area || <=======DEVELOPMENT PURPOSES ONLY=======> */}
+              {selectedDepartment && (
+                <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
+                  <p>
+                    <span className="text-sm text-accent-foreground">
+                      Departamento:{" "}
+                      <span className="text-md text-sidebar-foreground">
+                        {selectedDepartment}
+                      </span>
+                    </span>
+                  </p>
+                </section>
+              )}
+              {selectedDepartment === "supply-chain" && (
+                <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
+                  <p>
+                    <span className="text-sm text-accent-foreground">
+                      Área:{" "}
+                      <span className="text-md text-sidebar-foreground">
+                        {selectedArea}
+                      </span>
+                    </span>
+                  </p>
+                </section>
+              )}
+            </>
+          )}
 
           {/* Display sidebar items when department and area are selected */}
-          <div className="w-full max-h-[15rem] overflow-y-auto flex md:hidden flex-col gap-2 px-1 min-w-auto">
+          <div className="w-full max-h-[20rem] overflow-y-auto flex md:hidden flex-col gap-2 px-1 min-w-auto">
             {SIDENAV_ITEMS.map((item, idx) => {
               return <SideBarMenuGroup key={idx} menuGroup={item} />;
             })}
