@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@trm/_components/ui/custom/data-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
 export const data: Sales[] = [
   {
@@ -86,29 +86,32 @@ export type Sales = {
   status: "pendiente" | "procesando" | "éxito" | "fallido";
 };
 
-export const columns: ColumnDef<Sales>[] = [
-  {
-    accessorKey: "product",
+const columnHelper = createColumnHelper<Sales>();
+
+export const columns = [
+  columnHelper.accessor("product", {
     header: "Producto",
-  },
-  {
-    accessorKey: "amount",
-    header: "Monto",
-  },
-  {
-    accessorKey: "quantity",
+  }),
+  columnHelper.accessor("quantity", {
     header: "Cantidad",
-  },
-  {
-    accessorKey: "status",
+  }),
+  columnHelper.accessor("amount", {
+    header: "Monto",
+  }),
+  columnHelper.accessor("status", {
     header: "Estado",
-  },
+    enableSorting: true,
+  }),
 ];
 
-export function RecentSales() {
+export function RecentSalesTable() {
   return (
     <div className="w-full">
-      <DataTable data={data} columns={columns}></DataTable>
+      <DataTable
+        data={data}
+        columns={columns}
+        filterColumn={`product`}
+        pageSize={5}></DataTable>
     </div>
   );
 }
