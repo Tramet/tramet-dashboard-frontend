@@ -1,12 +1,16 @@
-import * as React from "react";
+"use client";
+
+import React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  SortingState,
   Pagination,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -20,34 +24,45 @@ import {
 } from "@trm/_components/ui/table";
 import { Button } from "@trm/_components/ui/button";
 import { Input } from "@trm/_components/ui/input";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData, any>[];
   data: TData[];
+  filterColumn: string;
+  pageSize: number;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData>({
   data,
   columns,
-}: DataTableProps<TData, TValue>) {
+  filterColumn,
+  pageSize,
+}: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
     initialState: {
       pagination: {
         pageIndex: 0,
-        pageSize: 5,
+        pageSize,
       },
+      sorting,
     },
     onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
+      sorting,
     },
   });
 
@@ -55,10 +70,12 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtrar producto..."
-          value={(table.getColumn("product")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filtrar por ${filterColumn}...`}
+          value={
+            (table.getColumn(filterColumn)?.getFilterValue() as string) || ""
+          }
           onChange={(event) =>
-            table.getColumn("product")?.setFilterValue(event.target.value)
+            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -68,18 +85,40 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    <div className="flex justify-start items-center">
+                      <div>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </div>
+                      <div>
+                        {header.column.columnDef.enableSorting && (
+                          <Button
+                            className="ml-2 p-1 size-6"
+                            onClick={() =>
+                              header.column.toggleSorting(
+                                header.column.getIsSorted() === "asc"
+                              )
+                            }>
+                            {/* Icono de flecha arriba o abajo según el estado de ordenamiento */}
+                            {header.column.getIsSorted() === "asc" ? (
+                              <ArrowUp className="size-4" />
+                            ) : header.column.getIsSorted() === "desc" ? (
+                              <ArrowDown className="size-4" />
+                            ) : (
+                              <ArrowUpDown className="size-4" />
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -87,6 +126,7 @@ export function DataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
+                  className="text-sidebar-foreground"
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
@@ -104,7 +144,7 @@ export function DataTable<TData, TValue>({
                 <TableCell
                   colSpan={columns.length}
                   className="h-24 text-center">
-                  Sin resultados.
+                  No results.
                 </TableCell>
               </TableRow>
             )}

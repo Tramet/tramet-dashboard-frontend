@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@trm/_components/ui/card";
 import { Overview } from "@trm/_components/overview";
-import { RecentSales } from "@trm/_components/recent-sales";
+import { RecentSalesTable } from "@trm/_components/recent-sales-table";
 
 export default function Home() {
   const { selectedDepartment, setSelectedDepartment } =
@@ -144,7 +144,7 @@ export default function Home() {
               <CardDescription>Hiciste 265 ventas este mes.</CardDescription>
             </CardHeader>
             <CardContent>
-              <RecentSales />
+              <RecentSalesTable />
             </CardContent>
           </Card>
         </div>
