@@ -15,6 +15,7 @@ import CompanyLogo from "../company-logo/company-logo";
 import Image from "next/image";
 import adminBtn from "../../../public/adminBtn.png";
 import { usePathname } from "next/navigation";
+import { Button } from "@trm/_components/ui/button";
 
 export type UserDetails = {
   id: number;
@@ -46,7 +47,7 @@ export default function Header() {
   };
 
   const headerStyle = classNames(
-    "bg-navbar fixed w-full z-40 px-4 shadow-md shadow-slate-500/40 ",
+    "bg-navbar fixed w-full z-40 px-4 shadow-sm shadow-slate-500/40 ",
     {}
   );
 
@@ -116,10 +117,15 @@ export default function Header() {
             </div>
           </section>
           {/* Administrator icon */}
-          <section className="bg-foreground rounded-full ml-2 w-12 xl:w-14 px-2 flex justify-center items-center">
-            <Link href="/admin">
-              <Image src={adminBtn} alt="admin button" className="w-9" />
-            </Link>
+          <section className="bg-foreground rounded-lg ml-2 h-10 w-10 flex justify-center items-center">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-md p-0 bg-foreground hover:bg-muted text-background hover:text-muted-foreground border-0 outline-none">
+              <Link href="/admin/" className="p-2">
+                <Image src={adminBtn} alt="admin button" />
+              </Link>
+            </Button>
           </section>
         </section>
       </div>

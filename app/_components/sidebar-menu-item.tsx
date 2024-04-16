@@ -25,12 +25,14 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   const { selectedDepartment } = useDepartmentSelection();
 
   const isItemActive = (path: string) =>
-    pathname === `/${selectedDepartment}/${selectedArea}/${path}`;
+    pathname === `/${selectedDepartment}/${selectedArea}/${path}` ||
+    pathname === path;
 
   const isAnyChildActive = () =>
     item.subMenuItems?.some(
       (subItem) =>
-        pathname === `/${selectedDepartment}/${selectedArea}/${subItem.path}`
+        pathname === `/${selectedDepartment}/${selectedArea}/${subItem.path}` ||
+        pathname === subItem.path
     );
 
   return (
@@ -100,24 +102,26 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
           </AccordionItem>
         </Accordion>
       ) : (
-        <Link
-          href={item.path}
-          passHref
-          className={classNames(
-            "flex items-center min-h-[40px] h-full text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
-            {
-              "text-sidebar-muted-foreground bg-sidebar-muted": isItemActive(
-                item.path
-              ),
-            }
-          )}>
-          <div className="min-w-[20px]">{item.icon}</div>
-          {!toggleCollapse && (
-            <span className="ml-3 text-sm md:text-base leading-6 font-semibold">
-              {item.title}
-            </span>
-          )}
-        </Link>
+        <>
+          <Link
+            href={item.path ?? ""}
+            passHref
+            className={classNames(
+              "flex items-center min-h-[40px] h-full text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
+              {
+                "text-sidebar-muted-foreground bg-sidebar-muted": isItemActive(
+                  item.path ?? ""
+                ),
+              }
+            )}>
+            <div className="min-w-[20px]">{item.icon}</div>
+            {!toggleCollapse && (
+              <span className="ml-3 text-sm md:text-base leading-6 font-semibold">
+                {item.title}
+              </span>
+            )}
+          </Link>
+        </>
       )}
     </>
   );

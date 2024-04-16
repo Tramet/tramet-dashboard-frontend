@@ -38,7 +38,9 @@ export const SideBar = () => {
       <nav className="flex flex-col gap-2 transition duration-300 ease-in-out">
         <div className="flex flex-col gap-2 px-1 min-w-auto">
           {SIDENAV_ITEMS.map((item, idx) => {
-            return <SideBarMenuGroup key={idx} menuGroup={item} />;
+            return (
+                <SideBarMenuGroup key={idx} menuGroup={item} />
+            );
           })}
         </div>
       </nav>
