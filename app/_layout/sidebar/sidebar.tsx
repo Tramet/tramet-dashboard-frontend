@@ -39,9 +39,7 @@ export const SideBar = () => {
         <div className="flex flex-col gap-2 px-1 min-w-auto">
           {SIDENAV_ITEMS.map((item, idx) => {
             return (
-              <>
                 <SideBarMenuGroup key={idx} menuGroup={item} />
-              </>
             );
           })}
         </div>

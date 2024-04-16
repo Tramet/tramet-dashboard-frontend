@@ -24,7 +24,7 @@ const SideBarMenuGroup = ({ menuGroup }: { menuGroup: SideNavItemGroup }) => {
             (item, idx) =>
               !toggleCollapse && (
                 <h1
-                  key={idx}
+                  key={`title${idx}`}
                   className="flex justify-start items-center text-lg text-sidebar-foreground font-semibold px-4">
                   {item.admin?.title}
                 </h1>
