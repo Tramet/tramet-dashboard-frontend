@@ -1,8 +1,7 @@
-import { AdminDepartmentsTable } from "@trm/_components/admin-departments-table";
 import { AdminSitesTable } from "@trm/_components/admin-sites-table";
 import React from "react";
 
-const AdminDepartments = () => {
+const AdminSites = () => {
   return (
     <div>
       <h2 className="text-3xl font-bold tracking-tight my-4">Sitios</h2>
@@ -11,4 +10,4 @@ const AdminDepartments = () => {
   );
 };
 
-export default AdminDepartments;
+export default AdminSites;
