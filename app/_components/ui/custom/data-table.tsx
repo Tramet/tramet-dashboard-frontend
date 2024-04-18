@@ -29,7 +29,10 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
   data: TData[];
-  filterColumn: string;
+  filterColumn: {
+    key: string;
+    label: string;
+  };
   pageSize: number;
 }
 
@@ -70,12 +73,15 @@ export function DataTable<TData>({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder={`Filtrar por ${filterColumn}...`}
+          placeholder={`Filtrar por ${filterColumn.label}...`}
           value={
-            (table.getColumn(filterColumn)?.getFilterValue() as string) || ""
+            (table.getColumn(filterColumn.key)?.getFilterValue() as string) ||
+            ""
           }
           onChange={(event) =>
-            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
+            table
+              .getColumn(filterColumn.key)
+              ?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
