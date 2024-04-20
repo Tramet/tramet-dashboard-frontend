@@ -54,7 +54,7 @@ export type User = {
     departments: string[];
     areas: string[];
     modules: string[];
-    windows: string[];
+    screens: string[];
   };
   options: string;
   credentials: {
@@ -75,7 +75,7 @@ const data: User[] = [
       departments: ["department1", "department2"],
       areas: ["area1", "area2"],
       modules: ["module1", "module2"],
-      windows: ["window1", "window2"],
+      screens: ["screen1", "screen2", "screen3", "screen4"],
     },
     options: "options",
     credentials: {
@@ -94,7 +94,7 @@ const data: User[] = [
       departments: ["department3", "department4"],
       areas: ["area3", "area4"],
       modules: ["module3", "module4"],
-      windows: ["window3", "window4"],
+      screens: ["screen3", "screen4"],
     },
     options: "options",
     credentials: {
@@ -113,7 +113,7 @@ const data: User[] = [
       departments: ["department5", "department6"],
       areas: ["area5", "area6"],
       modules: ["module5", "module6"],
-      windows: ["window5", "window6"],
+      screens: ["screen5", "screen6"],
     },
     options: "options",
     credentials: {
@@ -167,14 +167,20 @@ export const columns: ColumnDef<User>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("id")}</div>,
+    cell: ({ row }) => row.original.id,
     enableSorting: true,
     enableHiding: true,
   },
   {
     id: "status",
     header: "Estado",
-    cell: ({ row }) => row.original.status,
+    cell: ({ row }) => {
+      return row.original.status === "active" ? (
+        <span className="text-green-500">Activo</span>
+      ) : (
+        <span className="text-red-500">Inactivo</span>
+      );
+    },
     enableSorting: true,
     enableHiding: true,
   },
@@ -186,7 +192,7 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: true,
   },
   {
-    id: "fullName",
+    accessorKey: "fullName",
     header: "Nombre",
     cell: ({ row }) => row.original.fullName,
     enableSorting: true,
@@ -343,6 +349,7 @@ export function AdminUsersTable() {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
+                  className="text-sidebar-foreground"
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (

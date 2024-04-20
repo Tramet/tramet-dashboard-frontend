@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@trm/_components/ui/button";
 import {
   Dialog,
@@ -14,7 +14,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { Checkbox } from "@trm/_components/ui/checkbox";
 import { Separator } from "@trm/_components/ui/separator";
 
-export interface UserPermissions {
+type PermissionType = {
   id: string;
   name: string;
   permissions: {
@@ -22,42 +22,48 @@ export interface UserPermissions {
     departments: string[];
     areas: string[];
     modules: string[];
-    windows: string[];
+    screens: string[];
+    [key: string]: string[]; // Add index signature
   };
-}
+};
 
-const UserPermissionsDialog = ({ id, name, permissions }: UserPermissions) => {
-  const { sites, departments, areas, modules, windows } = permissions;
+const totalPermissions = {
+  sites: ["site1", "site2", "site3", "site4", "site5"],
+  departments: [
+    "department1",
+    "department2",
+    "department3",
+    "department4",
+    "department5",
+  ],
+  areas: ["area1", "area2", "area3", "area4", "area5"],
+  modules: ["module1", "module2", "module3", "module4", "module5"],
+  screens: ["screen1", "screen2", "screen3", "screen4", "screen5"],
+};
 
-  const [selectedSites, setSelectedSites] = useState([...sites]);
-  const [changedPermissions, setChangedPermissions] =
-    useState<UserPermissions | null>(null);
+const UserPermissionsDialog: React.FC<PermissionType> = ({
+  id,
+  name,
+  permissions,
+}) => {
+  const [tempPermissions, setTempPermissions] = React.useState(permissions);
 
-  const handleCheckboxChange = (site: string) => {
-    setSelectedSites((prevSelectedSites) => {
-      if (prevSelectedSites.includes(site)) {
-        // Si el sitio está seleccionado, se deselecciona
-        return prevSelectedSites.filter((s) => s !== site);
-      } else {
-        // Si el sitio no está seleccionado, se selecciona
-        return [...prevSelectedSites, site];
-      }
-    });
+  const handleCheckboxChange = (
+    type: string,
+    item: string,
+    checked: boolean
+  ) => {
+    setTempPermissions((prevPermissions) => ({
+      ...prevPermissions,
+      [type]: checked
+        ? [...prevPermissions[type], item]
+        : prevPermissions[type].filter((perm: string) => perm !== item),
+    }));
   };
 
   const handleSaveChanges = () => {
-    // Crear un nuevo objeto de permisos con los sitios actualizados
-    const updatedPermissions = {
-      id,
-      permissions: {
-        ...permissions,
-        sites: selectedSites,
-      },
-    };
-    // Log de los nuevos datos antes de establecerlos como changedPermissions
-    console.log("Nuevos permisos:", updatedPermissions);
-    // Establecer los nuevos permisos cambiados
-    setChangedPermissions(updatedPermissions);
+    console.log("Nuevos permisos:", tempPermissions);
+    // Aquí puedes realizar la lógica para guardar los cambios en la base de datos
   };
 
   return (
@@ -77,35 +83,32 @@ const UserPermissionsDialog = ({ id, name, permissions }: UserPermissions) => {
           </DialogDescription>
         </DialogHeader>
         <Separator />
-        <div className="flex flex-col gap-y-3 mb-4">
-          <h3 className="text-lg">Sitios</h3>
-          <section
-            id="sites"
-            className="flex flex-col justify-center items-start gap-2">
-            {permissions.sites.map((site) => (
-              <div
-                key={site}
-                className="flex justify-start items-center space-x-1">
-                <Checkbox
-                  id={site}
-                  className="flex justify-center items-center"
-                  checked={selectedSites.includes(site)}
-                  onCheckedChange={() => handleCheckboxChange(site)} // Llamar a handleCheckboxChange con el sitio actual
-                />
-                <label
-                  htmlFor={site}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {site}
-                </label>
-              </div>
-            ))}
+        {Object.entries(totalPermissions).map(([type, items]) => (
+          <section key={type} className="flex flex-col gap-y-3 mb-4 ">
+            <h3 className="text-lg">{type}</h3>
+            <div className="flex justify-start text-sidebar-foreground items-start gap-2 flex-wrap">
+              {items.map((item) => (
+                <div key={item} className="flex items-center space-x-1">
+                  <Checkbox
+                    id={item}
+                    className="flex justify-center items-center"
+                    checked={tempPermissions[
+                      type as keyof typeof tempPermissions
+                    ].includes(item)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleCheckboxChange(type, item, checked)
+                    }
+                  />
+                  <label
+                    htmlFor={item}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    {item}
+                  </label>
+                </div>
+              ))}
+            </div>
           </section>
-        </div>
-        <div>
-          <h3>Departamentos</h3>
-          {/* Render checkboxes for departments similar to sites */}
-        </div>
-        {/* Render areas, modules, and windows similarly */}
+        ))}
         <DialogFooter>
           <DialogClose asChild>
             <Button onClick={handleSaveChanges} type="submit">
