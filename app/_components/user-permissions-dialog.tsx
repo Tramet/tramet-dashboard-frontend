@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { Button } from "@trm/_components/ui/button";
 import {
   Dialog,
@@ -13,8 +15,9 @@ import { MoreHorizontal } from "lucide-react";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Checkbox } from "@trm/_components/ui/checkbox";
 import { Separator } from "@trm/_components/ui/separator";
+import { BsShieldLock } from "react-icons/bs";
 
-type PermissionType = {
+type UserPermissionsDialogProps = {
   id: string;
   name: string;
   permissions: {
@@ -23,33 +26,36 @@ type PermissionType = {
     areas: string[];
     modules: string[];
     screens: string[];
-    [key: string]: string[]; // Add index signature
   };
+  totalPermissions: string[];
 };
 
-const totalPermissions = {
-  sites: ["site1", "site2", "site3", "site4", "site5"],
-  departments: [
-    "department1",
-    "department2",
-    "department3",
-    "department4",
-    "department5",
-  ],
-  areas: ["area1", "area2", "area3", "area4", "area5"],
-  modules: ["module1", "module2", "module3", "module4", "module5"],
-  screens: ["screen1", "screen2", "screen3", "screen4", "screen5"],
+type UserPermissions = {
+  sites: string[];
+  departments: string[];
+  areas: string[];
+  modules: string[];
+  screens: string[];
 };
 
-const UserPermissionsDialog: React.FC<PermissionType> = ({
+const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
   id,
   name,
   permissions,
+  totalPermissions,
 }) => {
   const [tempPermissions, setTempPermissions] = React.useState(permissions);
 
+  const permissionsTitles = {
+    sites: "Sitios",
+    departments: "Departamentos",
+    areas: "Áreas",
+    modules: "Módulos",
+    screens: "Pantallas",
+  };
+
   const handleCheckboxChange = (
-    type: string,
+    type: keyof UserPermissions,
     item: string,
     checked: boolean
   ) => {
@@ -62,7 +68,11 @@ const UserPermissionsDialog: React.FC<PermissionType> = ({
   };
 
   const handleSaveChanges = () => {
-    console.log("Nuevos permisos:", tempPermissions);
+    const newPermissions = {
+      id: id,
+      ...tempPermissions,
+    };
+    console.log("Nuevos permisos:", newPermissions);
     // Aquí puedes realizar la lógica para guardar los cambios en la base de datos
   };
 
@@ -71,10 +81,10 @@ const UserPermissionsDialog: React.FC<PermissionType> = ({
       <DialogTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          <BsShieldLock className="size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Editar permisos</DialogTitle>
           <DialogDescription className="text-sidebar-foreground">
@@ -83,32 +93,46 @@ const UserPermissionsDialog: React.FC<PermissionType> = ({
           </DialogDescription>
         </DialogHeader>
         <Separator />
-        {Object.entries(totalPermissions).map(([type, items]) => (
-          <section key={type} className="flex flex-col gap-y-3 mb-4 ">
-            <h3 className="text-lg">{type}</h3>
-            <div className="flex justify-start text-sidebar-foreground items-start gap-2 flex-wrap">
-              {items.map((item) => (
-                <div key={item} className="flex items-center space-x-1">
-                  <Checkbox
-                    id={item}
-                    className="flex justify-center items-center"
-                    checked={tempPermissions[
-                      type as keyof typeof tempPermissions
-                    ].includes(item)}
-                    onCheckedChange={(checked: boolean) =>
-                      handleCheckboxChange(type, item, checked)
+        <div className="flex flex-col overflow-y-auto max-h-[450px]">
+          {Object.entries(totalPermissions).map(([type, items]) => (
+            <section key={type} className="flex flex-col gap-y-3 mb-4 ">
+              <h3 className="text-lg">
+                {permissionsTitles[type as keyof typeof permissionsTitles]}
+              </h3>
+              <div className="flex justify-start text-sidebar-foreground items-start gap-2 flex-wrap">
+                {items.map((item: string) => (
+                  <div
+                    key={
+                      // gen random uuid
+                      Math.random().toString(36).substr(2, 9)
                     }
-                  />
-                  <label
-                    htmlFor={item}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    {item}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
+                    className="flex items-center space-x-1">
+                    <Checkbox
+                      id={item}
+                      className="flex justify-center items-center"
+                      checked={tempPermissions[
+                        type as keyof UserPermissions
+                      ]?.includes(item)}
+                      onCheckedChange={(checked: boolean) =>
+                        handleCheckboxChange(
+                          type as keyof UserPermissions,
+                          item,
+                          checked
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={item}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {item}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+        <Separator />
         <DialogFooter>
           <DialogClose asChild>
             <Button onClick={handleSaveChanges} type="submit">

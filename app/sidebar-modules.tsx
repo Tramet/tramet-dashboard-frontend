@@ -35,16 +35,6 @@ export const SIDENAV_ITEMS: SideNavItemGroup[] = [
           path: "/admin/users",
           icon: <BsPeople size={20} />,
         },
-        {
-          title: "Permisos",
-          path: "/admin/permissions",
-          icon: <BsShieldLock size={20} />,
-        },
-        {
-          title: "Contratado",
-          path: "/admin/contracted",
-          icon: <BsClipboard2Check size={20} />,
-        },
       ],
     },
     home: {

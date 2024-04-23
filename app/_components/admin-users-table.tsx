@@ -121,11 +121,109 @@ const data: User[] = [
       password: "password456",
     },
   },
+  {
+    id: "4",
+    status: "active",
+    user: "Anasmith",
+    fullName: "Ana Smith",
+    position: "IT Lead",
+    permissions: {
+      sites: ["site7", "site8"],
+      departments: ["department7", "department8"],
+      areas: ["area7", "area8"],
+      modules: ["module7", "module8"],
+      screens: ["screen7", "screen8"],
+    },
+    options: "options",
+    credentials: {
+      email: "",
+      password: "",
+    },
+  },
 ];
+
+const totalPermissions: {
+  sites: string[];
+  departments: string[];
+  areas: string[];
+  modules: string[];
+  screens: string[];
+} = {
+  sites: [
+    "site1",
+    "site2",
+    "site3",
+    "site4",
+    "site5",
+    "site6",
+    "site7",
+    "site8",
+  ],
+  departments: [
+    "department1",
+    "department2",
+    "department3",
+    "department4",
+    "department5",
+    "department6",
+    "department7",
+    "department8",
+  ],
+  areas: [
+    "area1",
+    "area2",
+    "area3",
+    "area4",
+    "area5",
+    "area6",
+    "area7",
+    "area8",
+  ],
+  modules: [
+    "module1",
+    "module2",
+    "module3",
+    "module4",
+    "module5",
+    "module6",
+    "module7",
+    "module8",
+  ],
+  screens: [
+    "screen1",
+    "screen2",
+    "screen3",
+    "screen4",
+    "screen5",
+    "screen6",
+    "screen7",
+    "screen8",
+  ],
+};
+
+const generateSortableColumnHeader = (column: any, label: string) => {
+  return (
+    <Button
+      variant="ghost"
+      className="flex justify-start items-center text-start px-2 py-1"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+      {label}
+      <span className="ml-2">
+        {column.getIsSorted() === "asc" ? (
+          <ArrowUp className="size-4" />
+        ) : column.getIsSorted() === "desc" ? (
+          <ArrowDown className="size-4" />
+        ) : (
+          <ArrowUpDown className="size-4" />
+        )}
+      </span>
+    </Button>
+  );
+};
 
 export const columns: ColumnDef<User>[] = [
   {
-    id: "select",
+    accessorKey: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -149,43 +247,25 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="flex justify-start items-center text-start px-2 py-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          ID
-          <span className="ml-2">
-            {column.getIsSorted() === "asc" ? (
-              <ArrowUp className="size-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ArrowDown className="size-4" />
-            ) : (
-              <ArrowUpDown className="size-4" />
-            )}
-          </span>
-        </Button>
-      );
+      return generateSortableColumnHeader(column, "ID");
     },
     cell: ({ row }) => row.original.id,
     enableSorting: true,
     enableHiding: true,
   },
   {
-    id: "status",
-    header: "Estado",
+    accessorKey: "status",
+    header: ({ column }) => {
+      return generateSortableColumnHeader(column, "Estado");
+    },
     cell: ({ row }) => {
-      return row.original.status === "active" ? (
-        <span className="text-green-500">Activo</span>
-      ) : (
-        <span className="text-red-500">Inactivo</span>
-      );
+      return row.original.status;
     },
     enableSorting: true,
     enableHiding: true,
   },
   {
-    id: "user",
+    accessorKey: "user",
     header: "Usuario",
     cell: ({ row }) => row.original.user,
     enableSorting: true,
@@ -199,8 +279,10 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: true,
   },
   {
-    id: "position",
-    header: "Puesto",
+    accessorKey: "position",
+    header: ({ column }) => {
+      return generateSortableColumnHeader(column, "Puesto");
+    },
     cell: ({ row }) => row.original.position,
     enableSorting: true,
     enableHiding: true,
@@ -212,9 +294,10 @@ export const columns: ColumnDef<User>[] = [
       <div className="flex justify-start items-center">
         {/* button to open a dialog and edit permissions */}
         <UserPermissionsDialog
-          id={row.original.id} // Pasar el ID del usuario
-          name={row.original.fullName} // Pasar el nombre del usuario
-          permissions={row.original.permissions} // Pasar los permisos actuales del usuario
+          id={row.original.id}
+          name={row.original.fullName}
+          permissions={row.original.permissions}
+          totalPermissions={totalPermissions}
         />
       </div>
     ),
@@ -222,17 +305,18 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: true,
   },
   {
-    id: "options",
+    accessorKey: "options",
     header: "Opciones",
     cell: ({ row }) => row.original.options,
     enableSorting: false,
     enableHiding: true,
   },
   {
-    id: "actions",
+    accessorKey: "actions",
+    header: "Acciones",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -243,14 +327,13 @@ export const columns: ColumnDef<User>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}>
-              Copy payment ID
+              onClick={() => navigator.clipboard.writeText(user.id)}>
+              Copiar ID del usuario
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Editar Usuario</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -302,7 +385,7 @@ export function AdminUsersTable() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
+              Columna <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
