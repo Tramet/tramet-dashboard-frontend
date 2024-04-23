@@ -80,7 +80,10 @@ export function AdminDepartmentsTable() {
       <DataTable
         data={departments}
         columns={columns}
-        filterColumn={`department`}
+        filterColumn={{
+          key: "department",
+          label: "Departamento",
+        }}
         pageSize={10}></DataTable>
     </div>
   );

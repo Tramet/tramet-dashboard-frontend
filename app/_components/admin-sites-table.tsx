@@ -125,7 +125,10 @@ export function AdminSitesTable() {
       <DataTable
         data={sites}
         columns={columns}
-        filterColumn={`site`}
+        filterColumn={{
+          key: "site",
+          label: "Sitio",
+        }}
         pageSize={10}></DataTable>
     </div>
   );
