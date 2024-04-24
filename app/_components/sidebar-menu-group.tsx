@@ -8,6 +8,7 @@ import useAreaSelection from "@trm/_hooks/use-area-selection";
 import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import { usePathname } from "next/navigation"; // Importando usePathname desde next/navigation
 import { SIDENAV_ITEMS } from "@trm/sidebar-modules";
+import { Separator } from "@trm/_components/ui/separator";
 
 const SideBarMenuGroup = ({ menuGroup }: { menuGroup: SideNavItemGroup }) => {
   const { toggleCollapse } = useSideBarToggle();
@@ -16,22 +17,49 @@ const SideBarMenuGroup = ({ menuGroup }: { menuGroup: SideNavItemGroup }) => {
   const pathname = usePathname();
   const isAdminRoute = pathname.includes("/admin");
 
+  const user = {
+    role: "adminTramet",
+  };
+
+  const isAdminTramet = user.role === "adminTramet";
+
   return (
     <>
       {isAdminRoute ? (
         <>
-          {SIDENAV_ITEMS.map(
-            (item, idx) =>
-              !toggleCollapse && (
-                <h1
-                  key={`title${idx}`}
-                  className="flex justify-start items-center text-lg text-sidebar-foreground font-semibold px-4">
-                  {item.admin?.title}
-                </h1>
-              )
-          )}
-          {menuGroup.admin?.items.map((item, index) => (
-            <SideBarMenuItem key={index} item={item} />
+          {SIDENAV_ITEMS.map((group, idx) => (
+            <div key={idx}>
+              {Object.keys(group).map((key) => {
+                const groupData = group[key as keyof SideNavItemGroup];
+                // Show "tramet_customers" group only for tramet admins
+                if (
+                  (key === "tramet_customers" && isAdminTramet) ||
+                  (key === "admin" && !isAdminTramet)
+                ) {
+                  return (
+                    <React.Fragment key={key}>
+                      {!toggleCollapse && (
+                        <h1
+                          key={`title${idx}`}
+                          className="flex justify-start items-center text-lg text-sidebar-foreground font-semibold px-4">
+                          {groupData?.title ?? ""}
+                        </h1>
+                      )}
+                      <h1 className="flex justify-start items-center text-lg text-sidebar-foreground font-semibold px-4 mb-1"></h1>
+                      {groupData?.items && (
+                        <div className="flex flex-col gap-2 mb-4">
+                          {groupData.items.map((item, index) => (
+                            <SideBarMenuItem key={index} item={item} />
+                          ))}
+                          <Separator />
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                }
+                return null;
+              })}
+            </div>
           ))}
         </>
       ) : selectedArea ? (
