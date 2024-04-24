@@ -51,6 +51,7 @@ const SideBarMenuGroup = ({ menuGroup }: { menuGroup: SideNavItemGroup }) => {
                           {groupData.items.map((item, index) => (
                             <SideBarMenuItem key={index} item={item} />
                           ))}
+                          <Separator />
                         </div>
                       )}
                     </React.Fragment>
