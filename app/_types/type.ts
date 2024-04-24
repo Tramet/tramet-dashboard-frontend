@@ -7,6 +7,10 @@ export type SideNavItem = {
 };
 
 export type SideNavItemGroup = {
+  tramet_customers?: {
+    title: string;
+    items: SideNavItem[];
+  };
   admin?: {
     title: string;
     items: SideNavItem[];

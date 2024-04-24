@@ -17,6 +17,16 @@ import {
 
 export const SIDENAV_ITEMS: SideNavItemGroup[] = [
   {
+    tramet_customers: {
+      title: "Config. Clientes",
+      items: [
+        {
+          title: "Clientes",
+          path: "/admin/tramet-customers",
+          icon: <BsClipboard2Check size={20} />,
+        },
+      ],
+    },
     admin: {
       title: "Administrador",
       items: [
