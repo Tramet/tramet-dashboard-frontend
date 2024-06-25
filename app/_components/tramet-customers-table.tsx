@@ -58,7 +58,7 @@ export type Customer = {
   };
   info: {
     logo: string;
-    direction: string;
+    address: string;
     coordinates: string;
     finalCost: number;
     paymentPeriod: string;
@@ -122,9 +122,9 @@ export const columns: ColumnDef<Customer>[] = [
   },
 
   {
-    accessorKey: "info.direction",
+    accessorKey: "info.address",
     header: "Dirección",
-    cell: ({ row }) => row.original.info.direction,
+    cell: ({ row }) => row.original.info.address,
     enableSorting: true,
     enableHiding: true,
   },

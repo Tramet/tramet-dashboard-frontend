@@ -56,7 +56,7 @@ const formSchema = z.object({
   }),
   info: z.object({
     logo: z.string(),
-    direction: z.string(),
+    address: z.string(),
     coordinates: z.string(),
     finalCost: z.string(),
     paymentPeriod: z.string(),
@@ -81,7 +81,7 @@ export function CreateCustomerDialog() {
       },
       info: {
         logo: "",
-        direction: "",
+        address: "",
         coordinates: "",
         finalCost: "",
         paymentPeriod: "",
@@ -338,7 +338,7 @@ export function CreateCustomerDialog() {
               {/* Campo de formulario para la dirección */}
               <FormField
                 control={form.control}
-                name="info.direction"
+                name="info.address"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dirección</FormLabel>
@@ -350,9 +350,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("info.direction")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("info.address")}</FormMessage>
                   </FormItem>
                 )}
               />
