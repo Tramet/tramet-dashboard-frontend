@@ -6,8 +6,11 @@ import SideBarMenuGroup from "@trm/_components/sidebar-menu-group";
 import { Separator } from "@trm/_components/ui/separator";
 import { BsList } from "react-icons/bs";
 
-import { SIDENAV_ITEMS } from "@trm/sidebar-modules";
+import { getContextModules } from "@trm/sidebar-modules";
+import useSiteSelection from "@trm/_hooks/use-site-selection";
 import useDepartmentSelection from "@trm/_hooks/use-department-selection";
+import useAreaSelection from "@trm/_hooks/use-area-selection";
+import { useAuth } from "@trm/_lib/auth/auth-context";
 
 export const SideBar = () => {
   const { toggleCollapse, invokeToggleCollapse } = useSideBarToggle();
@@ -23,7 +26,16 @@ export const SideBar = () => {
     }
   );
 
+  const { selectedSite } = useSiteSelection();
   const { selectedDepartment } = useDepartmentSelection();
+  const { selectedArea } = useAreaSelection();
+  const { user } = useAuth();
+
+  // Obtenemos el rol del usuario desde el contexto de autenticación
+  const userRole = user?.role;
+
+  // Get the appropriate navigation items based on context and user role
+  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, userRole);
 
   return (
     <aside className={asideStyle}>
@@ -37,7 +49,7 @@ export const SideBar = () => {
       <Separator />
       <nav className="flex flex-col gap-2 transition duration-300 ease-in-out">
         <div className="flex flex-col gap-2 px-1 min-w-auto">
-          {SIDENAV_ITEMS.map((item, idx) => {
+          {navItems.map((item, idx) => {
             return <SideBarMenuGroup key={idx} menuGroup={item} />;
           })}
         </div>
