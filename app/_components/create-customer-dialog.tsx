@@ -103,37 +103,10 @@ export function CreateCustomerDialog() {
 
   // Función para manejar el envío del formulario
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Convierte el costo final a un número
-    values.info.finalCost = Number(values.info.finalCost);
-    // Convierte el estado a un booleano
-    values.info.status = values.info.status === "active";
-
-    // Envía los datos del formulario al endpoint con un try catch
-    try {
-      const response = await fetch("http://localhost:8080/customers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        // La respuesta es un error HTTP, intenta leer el cuerpo de la respuesta
-        const errorText = await response.text();
-        // Lanza un error con el cuerpo de la respuesta
-        throw new Error(errorText);
-      }
-
-      // Cierra el diálogo al enviar el formulario
-      console.log("Cliente creado con éxito", values);
-      form.reset();
-      // Actualizar la lista de clientes después de crear uno nuevo con la API
-      const newCustomers = await getCustomers();
-      setCustomers(newCustomers);
-    } catch (error) {
-      console.error((error as Error).message);
-    }
+    // Lógica para enviar los datos a la API
+    onCreateCustomer(values);
+    // Cerrar el diálogo
+    onClose();
   };
 
   return (
@@ -203,9 +176,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.mission")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.mission")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -224,9 +195,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.vision")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.vision")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -245,9 +214,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.companyValues")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.companyValues")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -266,9 +233,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.history")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.history")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -287,9 +252,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.goals")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.goals")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -308,9 +271,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.fiscalData")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.fiscalData")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -329,9 +290,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("details.digitalContract")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("details.digitalContract")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -369,9 +328,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("info.coordinates")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("info.coordinates")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -391,9 +348,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("info.finalCost")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("info.finalCost")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -413,9 +368,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("info.paymentPeriod")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("info.paymentPeriod")}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -434,9 +387,7 @@ export function CreateCustomerDialog() {
                       />
                     </FormControl>
                     {/* Muestra el mensaje de error si existe */}
-                    <FormMessage>
-                      {getErrorMessage("info.contractPlan")}
-                    </FormMessage>
+                    <FormMessage>{getErrorMessage("info.contractPlan")}</FormMessage>
                   </FormItem>
                 )}
               />

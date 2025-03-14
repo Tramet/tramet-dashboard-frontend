@@ -8,7 +8,7 @@ import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { userData } = useAuth();
   const { selectedSite } = useSiteSelection();
   const { selectedDepartment } = useDepartmentSelection();
   const { selectedArea } = useAreaSelection();
@@ -23,7 +23,7 @@ export default function DashboardPage() {
         <SelectionFlow />
       ) : (
         <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Bienvenido, {user?.sub || "Usuario"}</h1>
+          <h1 className="text-2xl font-bold mb-6">Bienvenido, {userData?.sub || "Usuario"}</h1>
           <p className="text-muted-foreground mb-4">Se ha seleccionado la siguiente configuración:</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="p-4 border rounded-lg">

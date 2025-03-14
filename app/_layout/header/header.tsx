@@ -48,7 +48,7 @@ const USER: UserDetails = {
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { userData, logout } = useAuth();
 
   const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
   const { selectedArea, setSelectedArea } = useAreaSelection();
@@ -84,12 +84,12 @@ export default function Header() {
           </section>
 
           {/* MobileSidebar trigger */}
-          <section className="flex xl:hidden justify-center items-center">
+          <section className="flex md:hidden justify-center items-center">
             <MobileSidebar />
           </section>
 
           {/* User Dropdown Menu */}
-          <section className="hidden xl:block">
+          <section className="hidden md:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 rounded-full p-0 pl-0 pr-2 flex items-center gap-2">
@@ -97,17 +97,21 @@ export default function Header() {
                     <Avatar className="h-10 w-10 rounded-full">
                       <AvatarImage
                         className="rounded-full"
-                        src={user?.sub ? "/avatars/default.png" : USER.img}
-                        alt={user?.sub || USER.fullName}
+                        src={userData?.sub ? "/avatars/default.png" : USER.img}
+                        alt={userData?.sub || USER.fullName}
                       />
-                      <AvatarFallback>{user?.sub ? user.sub.substring(0, 2).toUpperCase() : "TRM"}</AvatarFallback>
+                      <AvatarFallback>
+                        {userData?.sub ? userData.sub.substring(0, 2).toUpperCase() : "TRM"}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="flex flex-col items-start justify-center">
                     <span className="text-xs text-accent-foreground opacity-70">
-                      {user?.role === "admin" ? "Administrador" : USER.position}
+                      {userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN"
+                        ? "Administrador"
+                        : USER.position}
                     </span>
-                    <span className="text-sm text-sidebar-foreground">{user?.sub || USER.fullName}</span>
+                    <span className="text-sm text-sidebar-foreground">{userData?.sub || USER.fullName}</span>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -126,20 +130,6 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           </section>
-
-          {/* Administrator icon */}
-          {user?.role === "admin" && (
-            <section className="bg-foreground rounded-lg ml-2 h-10 w-10 flex justify-center items-center">
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-md p-0 bg-foreground hover:bg-muted text-background hover:text-muted-foreground border-0 outline-none">
-                <Link href="/admin/" className="p-2">
-                  <Image src={adminBtn} alt="admin button" />
-                </Link>
-              </Button>
-            </section>
-          )}
         </section>
       </div>
     </header>

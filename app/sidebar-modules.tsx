@@ -25,8 +25,14 @@ export const getContextModules = (
   userRole: string | null | undefined
 ): SideNavItemGroup[] => {
   // Base navigation structure
-  const navigation: SideNavItemGroup[] = [
-    {
+  const navigation: SideNavItemGroup[] = [];
+
+  // Determinar si es un administrador
+  const isAdmin = userRole === "TRAMET_ADMIN" || userRole === "CUSTOMER_ADMIN";
+
+  // Solo mostrar la sección "Inicio" para usuarios regulares, no para administradores
+  if (!isAdmin) {
+    navigation.push({
       home: {
         title: "Inicio",
         items: [
@@ -37,12 +43,12 @@ export const getContextModules = (
           },
         ],
       },
-    },
-  ];
+    });
+  }
 
   // Siempre incluir opción para volver a seleccionar contexto
   // if it's a complete context, show it as a "Reset selection" button
-  if (site && department && area) {
+  if (site && department && area && !isAdmin) {
     // Asegurarse de que el objeto home existe
     if (navigation[0] && navigation[0].home) {
       navigation[0].home.items = [
@@ -56,8 +62,8 @@ export const getContextModules = (
     }
   }
 
-  // Si hay un contexto completo, mostrar módulos adicionales
-  if (site && department && area) {
+  // Si hay un contexto completo y no es admin, mostrar módulos adicionales
+  if (site && department && area && !isAdmin) {
     navigation.push({
       modules: {
         title: `Área: ${area}`,
@@ -105,13 +111,16 @@ export const getContextModules = (
   }
 
   // Incluir módulos de administración SOLO si el usuario tiene rol de administrador
-  const isAdmin = userRole === "admin";
-
   if (isAdmin) {
     navigation.push({
       admin: {
         title: "Administrador",
         items: [
+          {
+            title: "Dashboard Admin",
+            path: "/admin",
+            icon: <BsHouseDoor size={20} />,
+          },
           {
             title: "Departamentos",
             path: "/admin/departments",

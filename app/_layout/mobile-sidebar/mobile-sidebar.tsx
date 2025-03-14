@@ -58,13 +58,13 @@ export function MobileSidebar() {
   const { selectedArea, setSelectedArea } = useAreaSelection();
 
   // Hook para obtener la información del usuario autenticado
-  const { user, logout } = useAuth();
+  const { userData, logout } = useAuth();
 
   // Estado para controlar la apertura del panel lateral
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // Obtener los ítems de navegación basados en el contexto y rol del usuario
-  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, user?.role);
+  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, userData?.role);
 
   // Manejadores para los cambios en los selectores
   const handleSiteChange = (value: string | null) => {
@@ -145,19 +145,21 @@ export function MobileSidebar() {
         </div>
 
         {/* Footer con información del usuario y menú desplegable */}
-        {user && (
+        {userData && (
           <SheetFooter className="w-full border-t pt-4 mt-4">
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-x-2 items-center">
                 <Avatar className="h-10 w-10 rounded-full">
-                  <AvatarImage className="rounded-full" src="/avatars/default.png" alt={user.sub || "Usuario"} />
-                  <AvatarFallback>{user.sub ? user.sub.substring(0, 2).toUpperCase() : "U"}</AvatarFallback>
+                  <AvatarImage className="rounded-full" src="/avatars/default.png" alt={userData.sub || "Usuario"} />
+                  <AvatarFallback>{userData.sub ? userData.sub.substring(0, 2).toUpperCase() : "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start justify-center">
                   <span className="text-xs text-accent-foreground opacity-70">
-                    {user.role === "admin" ? "Administrador" : "Usuario"}
+                    {userData.role === "TRAMET_ADMIN" || userData.role === "CUSTOMER_ADMIN"
+                      ? "Administrador"
+                      : "Usuario"}
                   </span>
-                  <span className="text-sm text-sidebar-foreground">{user.sub || "Usuario"}</span>
+                  <span className="text-sm text-sidebar-foreground">{userData.sub || "Usuario"}</span>
                 </div>
               </div>
               <Button

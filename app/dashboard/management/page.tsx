@@ -8,7 +8,7 @@ import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
 
 export default function ManagementPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, userData } = useAuth();
   const router = useRouter();
   const { selectedSite } = useSiteSelection();
   const { selectedDepartment } = useDepartmentSelection();
