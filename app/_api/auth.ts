@@ -39,6 +39,35 @@ export async function loginUser(credentials: LoginCredentials): Promise<string> 
 }
 
 /**
+ * Cierra la sesión de un usuario invalidando su token
+ * @param token Token JWT del usuario a invalidar
+ * @returns Verdadero si el logout fue exitoso
+ */
+export async function logoutUser(token: string): Promise<boolean> {
+  try {
+    const response = await fetch("http://localhost:8080/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    if (!response.ok) {
+      console.warn("Error al hacer logout en el servidor:", response.status, response.statusText);
+      // Incluso si falla, consideramos el logout como exitoso localmente
+      return true;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error en logout:", error);
+    // Incluso si hay una excepción, consideramos el logout como exitoso localmente
+    return true;
+  }
+}
+
+/**
  * Obtiene los permisos del usuario actual
  * @param token Token JWT del usuario
  * @returns Permisos del usuario

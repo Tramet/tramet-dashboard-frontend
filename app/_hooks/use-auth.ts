@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { jwtDecode } from "jwt-decode";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { getUserPermissions, PERMISSIONS_API_ENABLED } from "@trm/_api/auth";
+import { getUserPermissions, PERMISSIONS_API_ENABLED, logoutUser } from "@trm/_api/auth";
 import usePermissionsStore from "./use-permissions";
 import Cookies from "js-cookie";
 
@@ -231,6 +231,17 @@ const useAuthStore = create<AuthState>()(
 
       // Método para cerrar sesión
       logout: () => {
+        const token = get().token;
+
+        // Si hay un token, intentar invalidarlo en el servidor
+        if (token) {
+          // No esperamos a que termine para no bloquear el logout
+          logoutUser(token).catch((error) => {
+            console.warn("Error al realizar logout en el servidor:", error);
+          });
+        }
+
+        // Limpiar datos localmente independientemente del resultado del servidor
         set({
           userData: null,
           token: null,

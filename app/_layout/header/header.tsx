@@ -84,12 +84,12 @@ export default function Header() {
           </section>
 
           {/* MobileSidebar trigger */}
-          <section className="flex xl:hidden justify-center items-center">
+          <section className="flex md:hidden justify-center items-center">
             <MobileSidebar />
           </section>
 
           {/* User Dropdown Menu */}
-          <section className="hidden xl:block">
+          <section className="hidden md:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 rounded-full p-0 pl-0 pr-2 flex items-center gap-2">
@@ -130,20 +130,6 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           </section>
-
-          {/* Administrator icon */}
-          {(userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN") && (
-            <section className="bg-foreground rounded-lg ml-2 h-10 w-10 flex justify-center items-center">
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-md p-0 bg-foreground hover:bg-muted text-background hover:text-muted-foreground border-0 outline-none">
-                <Link href="/admin/" className="p-2">
-                  <Image src={adminBtn} alt="admin button" />
-                </Link>
-              </Button>
-            </section>
-          )}
         </section>
       </div>
     </header>
