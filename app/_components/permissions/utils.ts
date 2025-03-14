@@ -54,40 +54,32 @@ export const buildPermissionTree = (
           children: [],
         };
 
-        // Crear nodo para módulos disponibles
-        const modulesNode: PermissionNode = {
-          id: `${areaId}_modules`,
-          name: "Módulos disponibles",
-          type: "module",
-          selectable: false,
-          children: safePermissions.modules.map((moduleId) => {
-            // Crear nodo de módulo
-            const moduleNode: PermissionNode = {
-              id: moduleId,
-              name: moduleId,
-              type: "module",
-              selectable: true,
-              children: [],
-            };
+        // Agregar módulos directamente al área
+        safePermissions.modules.forEach((moduleId) => {
+          // Crear nodo de módulo
+          const moduleNode: PermissionNode = {
+            id: moduleId,
+            name: moduleId,
+            type: "module",
+            selectable: true,
+            children: [],
+          };
 
-            // Filtrar pantallas relacionadas con este módulo
-            const relatedScreens = safePermissions.screens.filter((screenId) => screenId.includes(moduleId));
+          // Filtrar pantallas relacionadas con este módulo
+          const relatedScreens = safePermissions.screens.filter((screenId) => screenId.includes(moduleId));
 
-            // Agregar pantallas al módulo
-            moduleNode.children = relatedScreens.map((screenId) => ({
-              id: screenId,
-              name: screenId,
-              type: "screen",
-              selectable: true,
-              children: [],
-            }));
+          // Agregar pantallas al módulo
+          moduleNode.children = relatedScreens.map((screenId) => ({
+            id: screenId,
+            name: screenId,
+            type: "screen",
+            selectable: true,
+            children: [],
+          }));
 
-            return moduleNode;
-          }),
-        };
-
-        // Agregar módulos al área
-        areaNode.children.push(modulesNode);
+          // Agregar módulo directamente al área
+          areaNode.children.push(moduleNode);
+        });
 
         // Agregar área al departamento
         deptNode.children.push(areaNode);

@@ -16,6 +16,7 @@ import {
 import useSiteSelection from "@trm/_hooks/use-site-selection";
 import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
+import { ChevronLeft } from "lucide-react";
 
 // Mock data - replace with actual API calls
 const MOCK_SITES = [
@@ -173,19 +174,23 @@ export default function SelectionFlow() {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-end">
           {(step === "department" || step === "area") && (
-            <Button
-              variant="ghost"
-              onClick={() => {
-                if (step === "department") {
-                  setSite(null);
-                } else if (step === "area") {
-                  setSelectedDepartment(null);
-                }
-              }}>
-              Atrás
-            </Button>
+            <>
+              <Button
+                className=""
+                variant="ghost"
+                onClick={() => {
+                  if (step === "department") {
+                    setSite(null);
+                  } else if (step === "area") {
+                    setSelectedDepartment(null);
+                  }
+                }}>
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Atrás
+              </Button>
+            </>
           )}
           <div></div>
         </CardFooter>
