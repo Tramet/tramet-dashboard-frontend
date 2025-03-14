@@ -8,7 +8,7 @@ import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
 
 export default function AutoAdminPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, userData } = useAuth();
   const router = useRouter();
   const { selectedSite } = useSiteSelection();
   const { selectedDepartment } = useDepartmentSelection();
@@ -52,8 +52,8 @@ export default function AutoAdminPage() {
           <h3 className="font-semibold mb-2">Perfil de usuario</h3>
           <p className="text-sm text-muted-foreground">Gestiona tu información de usuario y preferencias.</p>
           <div className="mt-4 p-3 bg-muted rounded">
-            <p className="text-sm font-medium">Usuario: {user?.sub}</p>
-            <p className="text-sm text-muted-foreground">Rol: {user?.role || "Usuario"}</p>
+            <p className="text-sm font-medium">Usuario: {userData?.sub}</p>
+            <p className="text-sm text-muted-foreground">Rol: {userData?.role || "Usuario"}</p>
           </div>
         </div>
         <div className="border rounded-lg p-4">

@@ -48,7 +48,7 @@ const USER: UserDetails = {
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { userData, logout } = useAuth();
 
   const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
   const { selectedArea, setSelectedArea } = useAreaSelection();
@@ -97,17 +97,21 @@ export default function Header() {
                     <Avatar className="h-10 w-10 rounded-full">
                       <AvatarImage
                         className="rounded-full"
-                        src={user?.sub ? "/avatars/default.png" : USER.img}
-                        alt={user?.sub || USER.fullName}
+                        src={userData?.sub ? "/avatars/default.png" : USER.img}
+                        alt={userData?.sub || USER.fullName}
                       />
-                      <AvatarFallback>{user?.sub ? user.sub.substring(0, 2).toUpperCase() : "TRM"}</AvatarFallback>
+                      <AvatarFallback>
+                        {userData?.sub ? userData.sub.substring(0, 2).toUpperCase() : "TRM"}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="flex flex-col items-start justify-center">
                     <span className="text-xs text-accent-foreground opacity-70">
-                      {user?.role === "admin" ? "Administrador" : USER.position}
+                      {userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN"
+                        ? "Administrador"
+                        : USER.position}
                     </span>
-                    <span className="text-sm text-sidebar-foreground">{user?.sub || USER.fullName}</span>
+                    <span className="text-sm text-sidebar-foreground">{userData?.sub || USER.fullName}</span>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -128,7 +132,7 @@ export default function Header() {
           </section>
 
           {/* Administrator icon */}
-          {user?.role === "admin" && (
+          {(userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN") && (
             <section className="bg-foreground rounded-lg ml-2 h-10 w-10 flex justify-center items-center">
               <Button
                 variant="outline"

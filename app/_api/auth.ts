@@ -1,4 +1,5 @@
 // Authentication API service
+import { UserPermissions } from "@trm/_types/permissions";
 
 interface LoginCredentials {
   username: string;
@@ -8,6 +9,11 @@ interface LoginCredentials {
 interface LoginResponse {
   token: string;
 }
+
+// Flag para habilitar/deshabilitar la obtención de permisos
+// CAMBIAR A TRUE CUANDO LA API DE PERMISOS ESTÉ IMPLEMENTADA
+// (debe coincidir con el valor en use-auth.ts)
+export const PERMISSIONS_API_ENABLED = false;
 
 export async function loginUser(credentials: LoginCredentials): Promise<string> {
   try {
@@ -29,5 +35,69 @@ export async function loginUser(credentials: LoginCredentials): Promise<string> 
   } catch (error) {
     console.error("Login error:", error);
     throw error;
+  }
+}
+
+/**
+ * Obtiene los permisos del usuario actual
+ * @param token Token JWT del usuario
+ * @returns Permisos del usuario
+ */
+export async function getUserPermissions(token: string): Promise<UserPermissions> {
+  // Si la API está deshabilitada, devolver permisos por defecto sin hacer la llamada
+  if (!PERMISSIONS_API_ENABLED) {
+    return {
+      modules: ["dashboard", "operations", "management", "autoadmin", "support"],
+      sites: ["site1", "site2"],
+      departments: ["dep1", "dep2"],
+      areas: ["area1", "area2"],
+      screens: [],
+    };
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/user/permissions", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Si el servidor responde con 403 Forbidden, es posible que los permisos aún no estén configurados
+    if (response.status === 403) {
+      console.warn("El usuario no tiene permisos configurados (403 Forbidden)");
+      return {
+        modules: [],
+        sites: [],
+        departments: [],
+        areas: [],
+        screens: [],
+      };
+    }
+
+    if (!response.ok) {
+      console.error("Error al obtener permisos:", response.status, response.statusText);
+      // Si hay cualquier otro error, devolvemos permisos vacíos
+      return {
+        modules: [],
+        sites: [],
+        departments: [],
+        areas: [],
+        screens: [],
+      };
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error obteniendo permisos:", error);
+    // En caso de error, devolvemos permisos vacíos
+    return {
+      modules: [],
+      sites: [],
+      departments: [],
+      areas: [],
+      screens: [],
+    };
   }
 }

@@ -29,10 +29,10 @@ export const SideBar = () => {
   const { selectedSite } = useSiteSelection();
   const { selectedDepartment } = useDepartmentSelection();
   const { selectedArea } = useAreaSelection();
-  const { user } = useAuth();
+  const { userData } = useAuth();
 
   // Obtenemos el rol del usuario desde el contexto de autenticación
-  const userRole = user?.role;
+  const userRole = userData?.role;
 
   // Get the appropriate navigation items based on context and user role
   const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, userRole);

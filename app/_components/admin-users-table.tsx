@@ -13,13 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@trm/_components/ui/button";
 import { Checkbox } from "@trm/_components/ui/checkbox";
@@ -33,14 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@trm/_components/ui/dropdown-menu";
 import { Input } from "@trm/_components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@trm/_components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@trm/_components/ui/table";
 import UserPermissionsDialog from "./user-permissions-dialog";
 
 export type User = {
@@ -149,16 +136,7 @@ const totalPermissions: {
   modules: string[];
   screens: string[];
 } = {
-  sites: [
-    "site1",
-    "site2",
-    "site3",
-    "site4",
-    "site5",
-    "site6",
-    "site7",
-    "site8",
-  ],
+  sites: ["site1", "site2", "site3", "site4", "site5", "site6", "site7", "site8"],
   departments: [
     "department1",
     "department2",
@@ -169,36 +147,9 @@ const totalPermissions: {
     "department7",
     "department8",
   ],
-  areas: [
-    "area1",
-    "area2",
-    "area3",
-    "area4",
-    "area5",
-    "area6",
-    "area7",
-    "area8",
-  ],
-  modules: [
-    "module1",
-    "module2",
-    "module3",
-    "module4",
-    "module5",
-    "module6",
-    "module7",
-    "module8",
-  ],
-  screens: [
-    "screen1",
-    "screen2",
-    "screen3",
-    "screen4",
-    "screen5",
-    "screen6",
-    "screen7",
-    "screen8",
-  ],
+  areas: ["area1", "area2", "area3", "area4", "area5", "area6", "area7", "area8"],
+  modules: ["module1", "module2", "module3", "module4", "module5", "module6", "module7", "module8"],
+  screens: ["screen1", "screen2", "screen3", "screen4", "screen5", "screen6", "screen7", "screen8"],
 };
 
 const generateSortableColumnHeader = (column: any, label: string) => {
@@ -226,10 +177,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -328,8 +276,7 @@ export const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
               Copiar ID del usuario
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -343,11 +290,8 @@ export const columns: ColumnDef<User>[] = [
 
 export function AdminUsersTable() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -374,12 +318,8 @@ export function AdminUsersTable() {
       <div className="flex items-center py-4">
         <Input
           placeholder="Filtrar por Nombre..."
-          value={
-            (table.getColumn("fullName")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("fullName")?.setFilterValue(event.target.value)
-          }
+          value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("fullName")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -398,9 +338,7 @@ export function AdminUsersTable() {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }>
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 );
@@ -416,12 +354,7 @@ export function AdminUsersTable() {
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -436,20 +369,13 @@ export function AdminUsersTable() {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Sin resultados.
                 </TableCell>
               </TableRow>
@@ -459,8 +385,8 @@ export function AdminUsersTable() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-sidebar-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{" "}
-          {table.getFilteredRowModel().rows.length} filas(s) seleccionadas.
+          {table.getFilteredSelectedRowModel().rows.length} de {table.getFilteredRowModel().rows.length} filas(s)
+          seleccionadas.
         </div>
         <div className="space-x-2">
           <Button
@@ -470,11 +396,7 @@ export function AdminUsersTable() {
             disabled={!table.getCanPreviousPage()}>
             Previo
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}>
+          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
             Siguiente
           </Button>
         </div>
