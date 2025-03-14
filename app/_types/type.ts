@@ -4,6 +4,7 @@ export type SideNavItem = {
   icon?: JSX.Element;
   submenu?: boolean;
   subMenuItems?: SideNavItem[];
+  onClick?: string;
 };
 
 export type SideNavItemGroup = {
@@ -16,6 +17,14 @@ export type SideNavItemGroup = {
     items: SideNavItem[];
   };
   home?: {
+    title: string;
+    items: SideNavItem[];
+  };
+  context?: {
+    title: string;
+    items: SideNavItem[];
+  };
+  modules?: {
     title: string;
     items: SideNavItem[];
   };

@@ -13,81 +13,127 @@ import {
   BsPeople,
   BsShieldLock,
   BsClipboard2Check,
+  BsArrowLeft,
+  BsArrowClockwise,
 } from "react-icons/bs";
 
-export const SIDENAV_ITEMS: SideNavItemGroup[] = [
-  {
-    tramet_customers: {
-      title: "Config. Clientes",
-      items: [
-        {
-          title: "Clientes",
-          path: "/admin/tramet-customers",
-          icon: <BsClipboard2Check size={20} />,
-        },
-      ],
+// Get the module for a specific context (site, department, area)
+export const getContextModules = (
+  site: string | null,
+  department: string | null,
+  area: string | null,
+  userRole: string | null | undefined
+): SideNavItemGroup[] => {
+  // Base navigation structure
+  const navigation: SideNavItemGroup[] = [
+    {
+      home: {
+        title: "Inicio",
+        items: [
+          {
+            title: "Dashboard",
+            path: "/dashboard",
+            icon: <BsHouseDoor size={20} />,
+          },
+        ],
+      },
     },
-    admin: {
-      title: "Administrador",
-      items: [
+  ];
+
+  // Siempre incluir opción para volver a seleccionar contexto
+  // if it's a complete context, show it as a "Reset selection" button
+  if (site && department && area) {
+    // Asegurarse de que el objeto home existe
+    if (navigation[0] && navigation[0].home) {
+      navigation[0].home.items = [
         {
-          title: "Deparamentos",
-          path: "/admin/departments",
-          icon: <BsBuilding size={20} />,
+          title: "Volver a selección",
+          path: "/dashboard",
+          icon: <BsArrowClockwise size={20} />,
+          onClick: "resetContext", // Este atributo será usado para identificar la acción en el componente
         },
-        {
-          title: "Sitios",
-          path: "/admin/sites",
-          icon: <BsWindowStack size={20} />,
-        },
-        {
-          title: "Usuarios",
-          path: "/admin/users",
-          icon: <BsPeople size={20} />,
-        },
-      ],
-    },
-    home: {
-      title: "Inicio",
-      items: [
-        {
-          title: "Dashboard",
-          path: "dashboard",
-          icon: <BsHouseDoor size={20} />,
-        },
-        {
-          title: "Operaciones",
-          icon: <BsKanban size={20} />,
-          submenu: true,
-          subMenuItems: [
-            {
-              title: "Operacion 1",
-              path: "operation-1",
-              icon: <BsKanban size={20} />,
-            },
-            {
-              title: "Operacion 2",
-              path: "operation-2",
-              icon: <BsKanban size={20} />,
-            },
-          ],
-        },
-        {
-          title: "Gestión",
-          path: "management",
-          icon: <BsGear size={20} />,
-        },
-        {
-          title: "Auto-admin.",
-          path: "autoadmin",
-          icon: <BsListUl size={20} />,
-        },
-        {
-          title: "Material de apoyo",
-          path: "support-material",
-          icon: <BsEnvelope size={20} />,
-        },
-      ],
-    },
-  },
-];
+      ];
+    }
+  }
+
+  // Si hay un contexto completo, mostrar módulos adicionales
+  if (site && department && area) {
+    navigation.push({
+      modules: {
+        title: `Área: ${area}`,
+        items: [
+          {
+            title: "Dashboard",
+            path: "/dashboard",
+            icon: <BsHouseDoor size={20} />,
+          },
+          {
+            title: "Operaciones",
+            icon: <BsKanban size={20} />,
+            submenu: true,
+            subMenuItems: [
+              {
+                title: "Operacion 1",
+                path: "/dashboard/operations/1",
+                icon: <BsKanban size={20} />,
+              },
+              {
+                title: "Operacion 2",
+                path: "/dashboard/operations/2",
+                icon: <BsKanban size={20} />,
+              },
+            ],
+          },
+          {
+            title: "Gestión",
+            path: "/dashboard/management",
+            icon: <BsGear size={20} />,
+          },
+          {
+            title: "Auto-admin.",
+            path: "/dashboard/autoadmin",
+            icon: <BsListUl size={20} />,
+          },
+          {
+            title: "Material de apoyo",
+            path: "/dashboard/support",
+            icon: <BsEnvelope size={20} />,
+          },
+        ],
+      },
+    });
+  }
+
+  // Incluir módulos de administración SOLO si el usuario tiene rol de administrador
+  const isAdmin = userRole === "admin";
+
+  if (isAdmin) {
+    navigation.push({
+      admin: {
+        title: "Administrador",
+        items: [
+          {
+            title: "Departamentos",
+            path: "/admin/departments",
+            icon: <BsBuilding size={20} />,
+          },
+          {
+            title: "Sitios",
+            path: "/admin/sites",
+            icon: <BsWindowStack size={20} />,
+          },
+          {
+            title: "Usuarios",
+            path: "/admin/users",
+            icon: <BsPeople size={20} />,
+          },
+        ],
+      },
+    });
+  }
+
+  return navigation;
+};
+
+// Default export for backward compatibility
+export const SIDENAV_ITEMS: SideNavItemGroup[] = getContextModules(null, null, null, null);

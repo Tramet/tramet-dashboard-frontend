@@ -11,20 +11,32 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@trm/_components/ui/sheet";
-import { Menu } from "lucide-react";
+import { LogOut, Menu, User } from "lucide-react";
 import { SideBar } from "../sidebar/sidebar";
 import CompanyLogo from "../company-logo/company-logo";
 import { Combobox } from "../combobox/combobox";
 import { COMBOBOX_LISTS } from "../combobox/comboboxLists";
+import useSiteSelection from "@trm/_hooks/use-site-selection";
 import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useAreaSelection from "@trm/_hooks/use-area-selection";
 import { useState } from "react";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@trm/_components/ui/avatar";
 import { type UserDetails } from "@trm/_layout/header/header";
 import { AvatarFallback } from "@trm/_components/ui/avatar";
 import { SIDENAV_ITEMS } from "@trm/sidebar-modules";
 import SideBarMenuGroup from "@trm/_components/sidebar-menu-group";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Separator } from "@trm/_components/ui/separator";
+import { getContextModules } from "@trm/sidebar-modules";
+import { useAuth } from "@trm/_lib/auth/auth-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@trm/_components/ui/dropdown-menu";
 
 const USER: UserDetails = {
   id: 1,
@@ -36,19 +48,47 @@ const USER: UserDetails = {
 };
 
 export function MobileSidebar() {
+  const router = useRouter();
   const pathname = usePathname();
-
   const isAdminPage = pathname.includes("/admin");
 
-  const { selectedDepartment, setSelectedDepartment } =
-    useDepartmentSelection();
-
+  // Hooks para el contexto de selección
+  const { selectedSite, setSite } = useSiteSelection();
+  const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
   const { selectedArea, setSelectedArea } = useAreaSelection();
+
+  // Hook para obtener la información del usuario autenticado
+  const { user, logout } = useAuth();
+
+  // Estado para controlar la apertura del panel lateral
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Obtener los ítems de navegación basados en el contexto y rol del usuario
+  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, user?.role);
+
+  // Manejadores para los cambios en los selectores
+  const handleSiteChange = (value: string | null) => {
+    setSite(value);
+    // Al cambiar el sitio, reseteamos departamento y área
+    if (value !== selectedSite) {
+      setSelectedDepartment(null);
+      setSelectedArea(null);
+    }
+  };
 
   const handleDepartmentChange = (value: string | null) => {
     setSelectedDepartment(value);
+    // Al cambiar el departamento, reseteamos el área
+    if (value !== selectedDepartment) {
+      setSelectedArea(null);
+    }
   };
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    setIsSheetOpen(false); // Cerrar el sidebar móvil
+    router.push("/login");
+  };
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -62,86 +102,75 @@ export function MobileSidebar() {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="flex flex-col justify-between items-start pl-6 pb-6 pt-6 pr-10 min-w-[250px] max-w-[384px]">
-        <SheetHeader>
-          <CompanyLogo />
-        </SheetHeader>
-        <div className="w-full flex flex-col justify-center items-start space-y-4">
-          {!isAdminPage && (
-            <>
-              <div className="w-full flex flex-col space-y-2 justify-center items-start gap-x-2 p-2 z-50">
-                <Combobox
-                  isDesktop={false}
-                  name="Sitios"
-                  comboboxList={COMBOBOX_LISTS.sites}
-                />
-                <Combobox
-                  isDesktop={false}
-                  name="Departamentos"
-                  comboboxList={COMBOBOX_LISTS.departments}
-                  onChange={handleDepartmentChange}
-                  setIsSheetOpen={setIsSheetOpen}
-                />
-              </div>
+        className="flex flex-col justify-between items-start pl-6 pb-6 pt-6 pr-6 min-w-[280px] max-w-[384px]">
+        <div className="w-full">
+          <SheetHeader className="mb-4">
+            <CompanyLogo />
+          </SheetHeader>
 
-              {/* Display department and area || <=======DEVELOPMENT PURPOSES ONLY=======> */}
-              {selectedDepartment && (
-                <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
-                  <p>
-                    <span className="text-sm text-accent-foreground">
-                      Departamento:{" "}
-                      <span className="text-md text-sidebar-foreground">
-                        {selectedDepartment}
-                      </span>
-                    </span>
-                  </p>
-                </section>
+          {!isAdminPage && (
+            <div className="w-full mb-4">
+              {/* Información del contexto seleccionado */}
+              {selectedSite && selectedDepartment && selectedArea && (
+                <div className="bg-muted p-2 rounded-md mt-2 mb-4">
+                  <p className="text-sm font-medium">Contexto actual:</p>
+                  <div className="grid grid-cols-1 gap-1 mt-1">
+                    <p className="text-xs text-muted-foreground">
+                      Sitio: <span className="text-foreground">{selectedSite}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Departamento: <span className="text-foreground">{selectedDepartment}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Área: <span className="text-foreground">{selectedArea}</span>
+                    </p>
+                  </div>
+                </div>
               )}
-              {selectedDepartment === "supply-chain" && (
-                <section className="w-full flex md:hidden flex-col gap-2 px-1 min-w-auto">
-                  <p>
-                    <span className="text-sm text-accent-foreground">
-                      Área:{" "}
-                      <span className="text-md text-sidebar-foreground">
-                        {selectedArea}
-                      </span>
-                    </span>
-                  </p>
-                </section>
-              )}
-            </>
+            </div>
           )}
 
-          {/* Display sidebar items when department and area are selected */}
-          <div className="w-full max-h-[20rem] overflow-y-auto flex md:hidden flex-col gap-2 px-1 min-w-auto">
-            {SIDENAV_ITEMS.map((item, idx) => {
-              return <SideBarMenuGroup key={idx} menuGroup={item} />;
-            })}
+          <Separator className="my-2" />
+
+          {/* Menú de navegación */}
+          <div className="w-full overflow-y-auto max-h-[calc(100vh-350px)]">
+            <nav className="flex flex-col gap-2 transition duration-300 ease-in-out">
+              <div className="flex flex-col gap-2 px-1 min-w-auto">
+                {navItems.map((item, idx) => (
+                  <SideBarMenuGroup key={idx} menuGroup={item} />
+                ))}
+              </div>
+            </nav>
           </div>
         </div>
-        {/* FOOTER SIDEBAR */}
-        <SheetFooter>
-          <section className="flex gap-x-2">
-            <div className="h-10 w-10 rounded-full bg-sidebar-muted flex items-center justify-center text-center">
-              <Avatar className="h-10 w-10 rounded-full">
-                <AvatarImage
-                  className="rounded-full"
-                  src={USER.img}
-                  alt={USER.fullName}
-                />
-                <AvatarFallback>TRM</AvatarFallback>
-              </Avatar>
+
+        {/* Footer con información del usuario y menú desplegable */}
+        {user && (
+          <SheetFooter className="w-full border-t pt-4 mt-4">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-x-2 items-center">
+                <Avatar className="h-10 w-10 rounded-full">
+                  <AvatarImage className="rounded-full" src="/avatars/default.png" alt={user.sub || "Usuario"} />
+                  <AvatarFallback>{user.sub ? user.sub.substring(0, 2).toUpperCase() : "U"}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-start justify-center">
+                  <span className="text-xs text-accent-foreground opacity-70">
+                    {user.role === "admin" ? "Administrador" : "Usuario"}
+                  </span>
+                  <span className="text-sm text-sidebar-foreground">{user.sub || "Usuario"}</span>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700 hover:bg-red-100 px-2"
+                onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-1" />
+                <span className="text-xs">Salir</span>
+              </Button>
             </div>
-            <div className="flex flex-col items-start justify-center">
-              <span className="text-xs text-accent-foreground opacity-70">
-                {USER.position}
-              </span>
-              <span className="text-sm text-sidebar-foreground">
-                {USER.fullName}
-              </span>
-            </div>
-          </section>
-        </SheetFooter>
+          </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );
