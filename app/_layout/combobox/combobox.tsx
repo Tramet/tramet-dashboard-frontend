@@ -53,9 +53,9 @@ function ComboboxContent({
   name: ComboboxProps["name"];
 }) {
   return (
-    <Command>
-      <CommandInput placeholder={`Buscar ${name}`} />
-      <CommandEmpty>{`No se encontro ningún ${getSingularOfName(
+    <Command className="text-foreground">
+      <CommandInput placeholder={`Buscar ${name}`} className="text-foreground" />
+      <CommandEmpty className="text-muted-foreground">{`No se encontro ningún ${getSingularOfName(
         name
       )}.`}</CommandEmpty>
       <CommandGroup>
@@ -66,9 +66,9 @@ function ComboboxContent({
               value={comboboxValue.value}
               onSelect={() => handleSelect(comboboxValue.value)}
               className={cn(
-                "text-sm",
+                "text-sm text-foreground hover:bg-orange-100 dark:hover:bg-orange-900/20",
                 selectedValue === comboboxValue.value &&
-                  "bg-primary text-primary-foreground"
+                  "bg-[hsl(23,95%,55%)] text-white hover:bg-[hsl(23,95%,50%)] dark:hover:bg-[hsl(23,95%,60%)]"
               )}>
               <Check
                 className={cn(
