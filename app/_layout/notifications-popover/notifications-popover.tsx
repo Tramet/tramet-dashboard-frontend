@@ -37,7 +37,7 @@ export function NotificationsPopover() {
         <Button
           variant="outline"
           size="icon"
-          className="rounded-full p-0 bg-foreground hover:bg-muted text-background hover:text-muted-foreground border-0 outline-none">
+          className="rounded-full p-0 bg-accent hover:bg-muted text-accent-foreground hover:text-muted-foreground border-0 outline-none">
           <Bell className="w-6 h-6" />
         </Button>
       </PopoverTrigger>

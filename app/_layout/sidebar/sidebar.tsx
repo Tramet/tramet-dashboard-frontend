@@ -19,7 +19,7 @@ export const SideBar = () => {
   };
 
   const asideStyle = classNames(
-    "hidden md:flex sm:flex-col border-r p-2 gap-y-4 pt-20 bg-sidebar h-full shadow-sm shadow-slate-500/40 transition duration-300 ease-in-out overflow-x-auto z-10",
+    "hidden md:flex sm:flex-col border-r p-2 gap-y-4 pt-20 bg-sidebar text-sidebar-foreground h-full shadow-sm shadow-slate-500/40 transition duration-300 ease-in-out overflow-x-auto sidebar z-10",
     {
       ["w-[20rem]"]: !toggleCollapse,
       ["sm:w-[5rem]"]: toggleCollapse,
@@ -42,11 +42,11 @@ export const SideBar = () => {
       <div className="flex w-full justify-center items-center">
         <button
           onClick={sidebarToggle}
-          className="flex items-center justify-center shrink-btn bg-sidebar-muted text-sidebar-muted-foreground hover:bg-foreground hover:text-background rounded-md w-[30px] h-[30px] shadow-md shadow-black/10  transition duration-300 ease-in-out">
+          className="flex items-center justify-center shrink-btn bg-sidebar-muted text-sidebar-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md w-[30px] h-[30px] shadow-md shadow-black/10 transition duration-300 ease-in-out">
           <BsList />
         </button>
       </div>
-      <Separator />
+      <Separator className="bg-border opacity-50" />
       <nav className="flex flex-col gap-2 transition duration-300 ease-in-out">
         <div className="flex flex-col gap-2 px-1 min-w-auto">
           {navItems.map((item, idx) => {

@@ -154,7 +154,7 @@ export function MobileSidebar() {
                   <AvatarFallback>{userData.sub ? userData.sub.substring(0, 2).toUpperCase() : "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start justify-center">
-                  <span className="text-xs text-accent-foreground opacity-70">
+                  <span className="text-xs opacity-70">
                     {userData.role === "TRAMET_ADMIN" || userData.role === "CUSTOMER_ADMIN"
                       ? "Administrador"
                       : "Usuario"}
