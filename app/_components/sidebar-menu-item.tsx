@@ -11,6 +11,7 @@ import useDepartmentSelection from "@trm/_hooks/use-department-selection";
 import useSiteSelection from "@trm/_hooks/use-site-selection";
 import { BsChevronDown, BsChevronRight } from "react-icons/bs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { useTheme } from "next-themes";
 
 export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   const { toggleCollapse } = useSideBarToggle();
@@ -20,6 +21,8 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   const { selectedSite, setSite } = useSiteSelection();
   const router = useRouter();
   const [submenuOpen, setSubmenuOpen] = useState(false);
+  const { theme } = useTheme();
+  const isCustomTheme = theme === "custom";
 
   // Verificar si algún submenú está activo (para resaltar el padre)
   const isSubMenuActive = item.subMenuItems?.some((subItem) => pathname === subItem.path);
@@ -43,24 +46,31 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   // Contenido del botón o enlace
   const buttonContent = (
     <>
-      <div className="min-w-[20px]">{item.icon}</div>
+      <div className="min-w-[20px] text-sidebar-foreground">{item.icon}</div>
       {!toggleCollapse && (
         <>
-          <span className="ml-3 text-sm md:text-base text-start leading-6 font-semibold flex-grow">{item.title}</span>
+          <span className="ml-3 text-sm md:text-base text-start leading-6 font-semibold flex-grow text-sidebar-foreground">{item.title}</span>
           {item.submenu && (
-            <div className="ml-auto">{submenuOpen ? <BsChevronDown size={14} /> : <BsChevronRight size={14} />}</div>
+            <div className="ml-auto text-sidebar-foreground">{submenuOpen ? <BsChevronDown size={14} /> : <BsChevronRight size={14} />}</div>
           )}
         </>
       )}
     </>
   );
 
+  // Clases comunes para items
+  const itemBaseClasses = "text-sidebar-foreground hover:text-sidebar-muted-foreground hover:bg-sidebar-muted transition duration-200";
+  
+  // Ahora usamos la misma clase sidebar-highlight para todos los temas
+  // lo que varía es la implementación CSS para cada tema
+  const activeItemClasses = "sidebar-highlight font-medium";
+
   // Si es un botón para resetear el contexto
   if (item.onClick === "resetContext") {
     return (
       <button
         onClick={handleResetContext}
-        className="flex items-center w-full justify-start min-h-[40px] text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200">
+        className={`flex items-center w-full justify-start min-h-[40px] py-2 px-4 rounded-md ${itemBaseClasses}`}>
         {buttonContent}
       </button>
     );
@@ -76,25 +86,25 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
             <TooltipTrigger asChild>
               <button
                 className={classNames(
-                  "flex items-center w-full justify-start min-h-[40px] text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
+                  `flex items-center w-full justify-start min-h-[40px] py-2 px-4 rounded-md ${itemBaseClasses}`,
                   {
-                    "text-sidebar-muted-foreground bg-sidebar-muted": isSubMenuActive,
+                    [activeItemClasses]: isSubMenuActive,
                   }
                 )}>
                 {buttonContent}
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" align="start" className="p-0 min-w-[200px] bg-sidebar">
-              <div className="font-semibold text-sidebar-foreground px-4 py-2 border-b">{item.title}</div>
+            <TooltipContent side="right" align="start" className="p-0 min-w-[200px] bg-sidebar text-sidebar-foreground border border-border">
+              <div className="font-semibold px-4 py-2 border-b border-border">{item.title}</div>
               <div className="py-2">
                 {item.subMenuItems?.map((subItem, index) => (
                   <Link
                     key={index}
                     href={subItem.path || "#"}
                     className={classNames(
-                      "flex items-center min-h-[32px] text-sidebar-foreground py-1 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted transition duration-200",
+                      `flex items-center min-h-[32px] py-1 px-4 ${itemBaseClasses}`,
                       {
-                        "text-sidebar-muted-foreground bg-sidebar-muted": pathname === subItem.path,
+                        [activeItemClasses]: pathname === subItem.path,
                       }
                     )}>
                     <div className="min-w-[20px]">{subItem.icon}</div>
@@ -114,9 +124,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
         <button
           onClick={toggleSubmenu}
           className={classNames(
-            "flex items-center w-full justify-start min-h-[40px] text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
+            `flex items-center w-full justify-start min-h-[40px] py-2 px-4 rounded-md ${itemBaseClasses}`,
             {
-              "text-sidebar-muted-foreground bg-sidebar-muted": isSubMenuActive || submenuOpen,
+              [activeItemClasses]: isSubMenuActive || submenuOpen,
             }
           )}>
           {buttonContent}
@@ -130,9 +140,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                 key={index}
                 href={subItem.path || "#"}
                 className={classNames(
-                  "flex items-center min-h-[32px] text-sidebar-foreground py-1 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
+                  `flex items-center min-h-[32px] py-1 px-4 rounded-md ${itemBaseClasses}`,
                   {
-                    "text-sidebar-muted-foreground bg-sidebar-muted": pathname === subItem.path,
+                    [activeItemClasses]: pathname === subItem.path,
                   }
                 )}>
                 <div className="min-w-[20px]">{subItem.icon}</div>
@@ -150,9 +160,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
     <Link
       href={item.path || "#"}
       className={classNames(
-        "flex items-center min-h-[40px] h-full text-sidebar-foreground py-2 px-4 hover:text-sidebar-muted-foreground hover:bg-sidebar-muted rounded-md transition duration-200",
+        `flex items-center min-h-[40px] h-full py-2 px-4 rounded-md ${itemBaseClasses}`,
         {
-          "text-sidebar-muted-foreground bg-sidebar-muted": pathname === item.path,
+          [activeItemClasses]: pathname === item.path,
         }
       )}>
       {buttonContent}

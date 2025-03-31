@@ -117,7 +117,7 @@ export const getContextModules = (
         title: "Administrador",
         items: [
           {
-            title: "Dashboard Admin",
+            title: "Dashboard",
             path: "/admin",
             icon: <BsHouseDoor size={20} />,
           },
