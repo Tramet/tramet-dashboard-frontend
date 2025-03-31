@@ -34,109 +34,85 @@ const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
   onPermissionsChange = () => {},
   onClose = () => {},
 }) => {
-  // Usar siempre los datos mock para este componente (en un caso real, esto podría ser configurable)
-  const useMockData = true;
+  // Usar datos del usuario real en lugar de datos mock
+  const useMockData = false;
 
   // Usar datos mock o reales según configuración
   const effectiveSiteMetadata = useMockData ? mockData.siteMetadata : siteMetadata || {};
-  const effectiveTotalPermissions = useMockData ? mockData.totalPermissions : totalPermissions;
-
-  // Asegurar que totalPermissions tenga una estructura válida
-  const safePermissions = getSafePermissions(effectiveTotalPermissions);
-
-  // Estado temporal para los permisos editados
-  const [tempPermissions, setTempPermissions] = useState<UserPermissions>(
-    useMockData ? mockData.permissions : getSafeUserPermissions(permissions)
+  const effectiveTotalPermissions = useMockData ? mockData.totalPermissions : totalPermissions || {};
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPermissions, setSelectedPermissions] = useState<UserPermissions>(
+    getSafeUserPermissions(permissions)
   );
 
-  // Memoizar el árbol de permisos para evitar recalculos innecesarios
-  const permissionTree = useMemo(
-    () => buildPermissionTree(effectiveSiteMetadata, safePermissions),
-    [effectiveSiteMetadata, safePermissions]
-  );
+  // Construir árbol de permisos para visualización
+  const permissionTree = useMemo(() => buildPermissionTree(
+    effectiveSiteMetadata,
+    effectiveTotalPermissions
+  ), [effectiveSiteMetadata, effectiveTotalPermissions]);
 
-  // Método para actualizar los permisos del usuario
-  const handlePermissionsChange = (newPermissions: UserPermissions) => {
-    setTempPermissions(newPermissions);
+  const handlePermissionChange = (permissions: UserPermissions) => {
+    // Actualizar permisos seleccionados
+    setSelectedPermissions(permissions);
   };
 
-  // Guardar cambios
-  const handleSaveChanges = () => {
-    const fullPermissions = {
-      id: id,
-      ...tempPermissions,
-    };
-    onPermissionsChange(fullPermissions);
+  const handleClose = () => {
+    setIsOpen(false);
     onClose();
   };
 
+  const handleSave = () => {
+    // Llamar a la función para guardar cambios
+    onPermissionsChange(selectedPermissions);
+    handleClose();
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <BsShieldLock className="size-4" />
+        <Button 
+          variant="ghost" 
+          className="h-8 w-8 p-0 text-blue-500 hover:text-orange-500"
+          title="Editar permisos"
+        >
+          <BsShieldLock className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Editar permisos</DialogTitle>
-          <DialogDescription className="text-sidebar-foreground">
-            Permisos para el usuario: <strong>{name}</strong> con ID: <strong>{id}</strong>
-            {useMockData && <span className="ml-2 text-xs text-amber-500">(Usando datos simulados)</span>}
+          <DialogTitle className="text-lg sm:text-xl">
+            Permisos para {name}
+          </DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
+            Configura los permisos del usuario según la jerarquía: Sitios → Departamentos → Áreas → Módulos → Pantallas
           </DialogDescription>
         </DialogHeader>
-        <Separator />
-
-        <div>
-          <div className="text-sm text-muted-foreground mb-2">
-            Selecciona un <span className="font-medium text-blue-500">sitio</span>, luego un{" "}
-            <span className="font-medium text-green-500">departamento</span>, después un{" "}
-            <span className="font-medium text-amber-500">área</span>, y finalmente los{" "}
-            <span className="font-medium text-purple-500">módulos</span> y{" "}
-            <span className="font-medium text-red-500">pantallas</span> a los que este usuario tendrá acceso.
-          </div>
-
-          {/* Leyenda de colores */}
-          <div className="bg-muted/30 rounded p-2 mb-2 flex flex-wrap gap-3 text-xs">
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
-              <span>Sitios</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-              <span>Departamentos</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
-              <span>Áreas</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-purple-500 mr-1"></div>
-              <span>Módulos</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-              <span>Pantallas</span>
-            </div>
-          </div>
-
-          {/* Árbol de permisos */}
+        
+        <Separator className="my-2" />
+        
+        <div className="max-h-[50vh] md:max-h-[60vh] overflow-y-auto p-1">
           <PermissionTree
             permissionTree={permissionTree}
-            tempPermissions={tempPermissions}
-            onPermissionsChange={handlePermissionsChange}
+            tempPermissions={selectedPermissions}
+            onPermissionsChange={handlePermissionChange}
           />
         </div>
-
-        <Separator />
-        <DialogFooter>
+        
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
           <DialogClose asChild>
-            <Button variant="ghost" onClick={onClose}>
+            <Button 
+              variant="outline" 
+              onClick={handleClose}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
               Cancelar
             </Button>
           </DialogClose>
-          <Button onClick={handleSaveChanges} type="submit">
+          <Button 
+            onClick={handleSave}
+            className="w-full sm:w-auto order-1 sm:order-2"
+          >
             Guardar cambios
           </Button>
         </DialogFooter>

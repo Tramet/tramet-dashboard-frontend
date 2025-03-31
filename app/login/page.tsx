@@ -31,7 +31,6 @@ export default function LoginPage() {
   // Efecto para redirigir después de iniciar sesión exitosamente
   useEffect(() => {
     if (loginSuccess && isAuthenticated && userData) {
-      console.log("Redirigiendo después de login exitoso:", userData.role);
       // Redirigir según el rol
       if (userData.role === "USER") {
         router.push("/dashboard");
@@ -44,7 +43,6 @@ export default function LoginPage() {
   // Efecto para redirigir si el usuario ya está autenticado al cargar la página
   useEffect(() => {
     if (isAuthenticated && userData) {
-      console.log("Usuario ya autenticado, redirigiendo:", userData.role);
       // Redirigir según el rol
       if (userData.role === "USER") {
         router.push("/dashboard");

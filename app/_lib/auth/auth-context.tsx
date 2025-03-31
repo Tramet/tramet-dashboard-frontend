@@ -75,9 +75,7 @@ function AuthInitializer() {
   const { initialize, isInitialized } = useAuth();
 
   useEffect(() => {
-    console.log("Inicializando autenticación...");
     initialize().then(() => {
-      console.log("Autenticación inicializada.");
     });
   }, [initialize]);
 

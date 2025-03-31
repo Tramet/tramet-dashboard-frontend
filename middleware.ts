@@ -88,7 +88,6 @@ export function middleware(request: NextRequest) {
 
     // Si el usuario está autenticado e intenta acceder a /login, redirigirlo según su rol
     if (path === "/login") {
-      console.log("Usuario autenticado intentando acceder a /login, redirigiendo a:", ROLE_ROUTES[userRole]);
       return NextResponse.redirect(new URL(ROLE_ROUTES[userRole], request.url));
     }
 
