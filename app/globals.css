@@ -27,6 +27,7 @@
         --ring: 20 14.3% 4.1%;
         --radius: 0.5rem;
         --navbar: 0 0% 100%;
+        --navbar-foreground: 20 14.3% 4.1%;
         --sidebar: 0 0% 100%;
         --sidebar-foreground: 20 14.3% 4.1%;
         --sidebar-muted: 60 4.8% 95.9%;
@@ -54,6 +55,7 @@
         --input: 0 0% 14.9%;
         --ring: 0 0% 83.1%;
         --navbar: 0 0% 3.9%;
+        --navbar-foreground: 0 0% 98%;
         --sidebar: 0 0% 3.9%;
         --sidebar-foreground: 0 0% 98%;
         --sidebar-muted: 0 2% 10%;
@@ -61,31 +63,89 @@
       }
 
       .custom {
+        /* Colores base */
         --background: 0 0% 100%; /* Blanco */
-        --foreground: 23 95% 55%; /* Naranja*/
+        --foreground: 202 80% 20%; /* Azul oscuro para mejor legibilidad y contraste */
+        
+        /* Colores primarios - Naranja corporativo y variaciones */
+        --primary: 23 95% 55%; /* Naranja principal corporativo */
+        --primary-light: 23 95% 65%; /* Naranja más claro */
+        --primary-dark: 23 95% 45%; /* Naranja más oscuro */
+        --primary-foreground: 0 0% 100%; /* Blanco para texto sobre naranja */
+        
+        /* Colores secundarios - Azul corporativo y variaciones */
+        --secondary: 202 100% 30%; /* Azul corporativo #006198 */
+        --secondary-light: 202 80% 45%; /* Azul más claro */
+        --secondary-dark: 202 100% 20%; /* Azul más oscuro */
+        --secondary-foreground: 0 0% 100%; /* Blanco para texto sobre azul */
+        
+        /* Colores complementarios y de acento */
+        --accent: 23 95% 55%; /* Naranja como acento principal */
+        --accent-foreground: 0 0% 100%; /* Blanco */
+        --accent-subtle: 23 90% 95%; /* Naranja muy suave para fondos sutiles */
+        
+        /* Colores neutros y de interface */
+        --muted: 202 30% 95%; /* Azul muy claro para áreas sutiles */
+        --muted-foreground: 202 80% 30%; /* Azul medio para textos secundarios */
+        
+        /* Elementos de contenido */
         --card: 0 0% 100%; /* Blanco */
-        --card-foreground: 20 14.3% 4.1%; /* Gris muy oscuro (casi negro) */
+        --card-foreground: 202 80% 20%; /* Azul oscuro para textos */
         --popover: 0 0% 100%; /* Blanco */
-        --popover-foreground: 20 14.3% 4.1%; /* Gris muy oscuro (casi negro) */
-        --primary: 23 95% 55%; /* Naranja*/
-        --primary-foreground: 60 9.1% 97.8%; /* Blanco */
-        --secondary: 60 4.8% 95.9%;
-        --secondary-foreground: 24 9.8% 10%;
-        --muted: 60 4.8% 95.9%;
-        --muted-foreground: 23 95% 55%; /* Naranja*/
-        --accent: 23 95% 55%; /* Naranja*/
-        --accent-foreground: 24 9.8% 10%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 60 9.1% 97.8%;
-        --border: 20 5.9% 90%;
-        --input: 20 5.9% 90%;
-        --ring: 23 95% 55%; /* Naranja*/
+        --popover-foreground: 202 80% 20%; /* Azul oscuro para textos */
+        
+        /* Colores de estado */
+        --destructive: 0 84% 60%; /* Rojo */
+        --destructive-foreground: 0 0% 100%; /* Blanco */
+        --success: 142 70% 45%; /* Verde */
+        --success-foreground: 0 0% 100%; /* Blanco */
+        --warning: 38 92% 50%; /* Amarillo */
+        --warning-foreground: 0 0% 8%; /* Negro suave */
+        
+        /* Elementos de interfaz */
+        --border: 23 30% 90%; /* Naranja muy sutil para bordes */
+        --input: 23 30% 90%; /* Naranja muy sutil para inputs */
+        --ring: 23 95% 55%; /* Naranja (mismo que primary) */
         --radius: 0.5rem;
-        --navbar: 23 90% 50%; /*Naranja clarito*/
-        --sidebar: 0 0% 100%;
-        --sidebar-foreground: 20 14.3% 4.1%;
-        --sidebar-muted: 60 4.8% 95.9%;
-        --sidebar-muted-foreground: 23 95% 55%; /* Naranja*/
+        
+        /* Navegación */
+        --navbar: 23 100% 50%; /* Naranja vibrante para navbar */
+        --navbar-foreground: 0 0% 100%; /* Blanco para texto en navbar */
+        
+        /* Sidebar */
+        --sidebar: 202 15% 98%; /* Azul muy claro para sidebar */
+        --sidebar-foreground: 202 80% 30%; /* Azul corporativo para texto */
+        --sidebar-muted: 0 0% 95%; /* Gris muy claro para elementos inactivos */
+        --sidebar-muted-foreground: 202 60% 45%; /* Azul medio para texto inactivo */
+        --sidebar-highlight: 23 95% 55%; /* Naranja para elementos destacados */
+        
+        /* Acentos adicionales para el tema claro */
+        --blue-accent: 202 100% 30%; /* Azul corporativo como acento secundario */
+        --blue-accent-light: 202 80% 90%; /* Azul muy claro para fondos */
+        --orange-accent-light: 23 95% 90%; /* Naranja muy claro para fondos */
+        --divider: 202 20% 90%; /* Azul muy claro para divisores */
+      }
+
+      /* Estilos adicionales solo para el tema personalizado */
+      .custom .navbar-gradient {
+        background: linear-gradient(90deg, hsl(23 100% 50%), hsl(23 100% 60%));
+      }
+      
+      .custom .sidebar-highlight {
+        background: linear-gradient(135deg, hsl(23 95% 55% / 0.1), hsl(23 95% 55% / 0.2));
+        border-left: 3px solid hsl(23 95% 55%);
+      }
+      
+      .custom .card-accent {
+        border-top: 3px solid hsl(23 95% 55%);
+      }
+      
+      .custom .btn-primary-gradient {
+        background: linear-gradient(135deg, hsl(23 95% 55%), hsl(23 95% 65%));
+      }
+      
+      .custom .btn-secondary-gradient {
+        background: linear-gradient(135deg, hsl(202 100% 30%), hsl(202 80% 45%));
       }
     }
   }
@@ -98,6 +158,17 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Estilos para elementos seleccionados del sidebar en temas claro y oscuro */
+  :root .sidebar-highlight {
+    border-left: 3px solid hsl(var(--primary));
+    background-color: hsl(var(--muted));
+  }
+  
+  .dark .sidebar-highlight {
+    border-left: 3px solid hsl(var(--primary));
+    background-color: hsl(var(--muted));
   }
 }
 
