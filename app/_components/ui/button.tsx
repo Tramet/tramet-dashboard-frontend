@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useTheme } from "next-themes";
 
 import { cn } from "@trm/_lib/utils";
 
@@ -42,9 +43,25 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const { theme } = useTheme();
+    const isCustomTheme = theme === "custom";
+
+    // Añadir clases de gradiente para el tema personalizado
+    let customThemeClass = "";
+    if (isCustomTheme) {
+      if (variant === "default") {
+        customThemeClass = "btn-primary-gradient";
+      } else if (variant === "secondary") {
+        customThemeClass = "btn-secondary-gradient";
+      }
+    }
+
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }), 
+          customThemeClass
+        )}
         ref={ref}
         {...props}
       />
