@@ -34,7 +34,7 @@ import { toast } from "sonner";
 import UserPermissionsDialog from "./users/user-permissions-dialog";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { getAllUsers, deleteUser, updateUserPermissions } from "@trm/_api/admin/users";
-import { Combobox } from "@trm/_layout/combobox/combobox";
+import { Combobox } from "@trm/_components/_layout/combobox/combobox";
 import { useMediaQuery } from "@trm/_hooks/use-media-query";
 
 // Modelo de usuario que incluye permisos pero sigue funcionando con la API simplificada
