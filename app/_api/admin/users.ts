@@ -1,19 +1,24 @@
-import { User } from "@trm/_components/admin-users-table";
+import { User, ApiUser, UserPermissions } from "@trm/_types/user";
 
 // URL base para todas las operaciones de usuarios
 const BASE_URL = "http://localhost:8080/admin/users";
 
-// Utilidad para manejar errores de API
+
 const handleApiError = async (response: Response) => {
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    let errorMessage = `Error ${response.status}: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      // Error no es un JSON válido, usar el mensaje por defecto
+    }
+    throw new Error(errorMessage);
   }
   return response;
 };
 
-// Obtener todos los usuarios
-export const getAllUsers = async (token: string): Promise<User[]> => {
+export const getAllUsers = async (token: string): Promise<ApiUser[]> => {
   const response = await fetch(`${BASE_URL}/all`, {
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -25,13 +30,12 @@ export const getAllUsers = async (token: string): Promise<User[]> => {
   return response.json();
 };
 
-// Crear un nuevo usuario
 export const createUser = async (token: string, userData: { user: string, password: string }): Promise<any> => {
-
   const user = {
-    ...userData,
+    username: userData.user,
+    password: userData.password,
     role: "USER"
-  }
+  };
 
   const response = await fetch(`${BASE_URL}`, {
     method: "POST",
@@ -46,21 +50,43 @@ export const createUser = async (token: string, userData: { user: string, passwo
   return response.json();
 };
 
-// Eliminar un usuario
 export const deleteUser = async (token: string, userId: string): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/delete/${userId}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
+  try {
+    // Convertir explícitamente el ID a entero como espera la API
+    const numericId = parseInt(userId, 10);
+    
+    const response = await fetch(`${BASE_URL}/delete/${numericId}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    
+    if (!response.ok) {
+      const responseText = await response.text();
+      let errorMessage = `Error ${response.status}: ${response.statusText}`;
+      
+      try {
+        if (responseText && responseText.trim()) {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorMessage;
+        }
+      } catch (e) {
+        if (responseText && responseText.trim()) {
+          errorMessage = `${errorMessage}. Detalles: ${responseText}`;
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
-  });
-  
-  await handleApiError(response);
+  } catch (error) {
+    throw error;
+  }
 };
 
-// Actualizar permisos de usuario
-export const updateUserPermissions = async (token: string, userId: string, permissions: any): Promise<void> => {
+
+export const updateUserPermissions = async (token: string, userId: string, permissions: UserPermissions): Promise<void> => {
   // Extraer solo las propiedades relevantes de permisos
   const updatedPermissions = {
     sites: permissions.sites || [],
