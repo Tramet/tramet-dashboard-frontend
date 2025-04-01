@@ -31,24 +31,25 @@ export default function LoginPage() {
   // Efecto para redirigir después de iniciar sesión exitosamente
   useEffect(() => {
     if (loginSuccess && isAuthenticated && userData) {
-      // Redirigir según el rol
-      if (userData.role === "USER") {
-        router.push("/dashboard");
-      } else {
-        router.push("/admin");
-      }
+      // Determinar la ruta de destino según el rol
+      const destination = userData.role === "USER" ? "/dashboard" : "/admin";
+      
+      // Usar setTimeout para permitir que el estado se actualice completamente
+      setTimeout(() => {
+        // Forzar una navegación completa con window.location en lugar de router.push
+        window.location.href = destination;
+      }, 100);
     }
   }, [loginSuccess, isAuthenticated, userData, router]);
 
   // Efecto para redirigir si el usuario ya está autenticado al cargar la página
   useEffect(() => {
     if (isAuthenticated && userData) {
-      // Redirigir según el rol
-      if (userData.role === "USER") {
-        router.push("/dashboard");
-      } else {
-        router.push("/admin");
-      }
+      // Determinar la ruta de destino según el rol
+      const destination = userData.role === "USER" ? "/dashboard" : "/admin";
+      
+      // Forzar una navegación completa
+      window.location.href = destination;
     }
   }, [isAuthenticated, userData, router]);
 
@@ -70,23 +71,8 @@ export default function LoginPage() {
       // Marcar el login como exitoso para activar la redirección
       setLoginSuccess(true);
 
-      // Agregar redirección inmediata
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const role = decodedToken.role || decodedToken.authorities;
-
-      if (typeof role === "string") {
-        if (role === "USER") {
-          router.push("/dashboard");
-        } else {
-          router.push("/admin");
-        }
-      } else if (Array.isArray(role) && role.length > 0) {
-        if (role[0] === "USER") {
-          router.push("/dashboard");
-        } else {
-          router.push("/admin");
-        }
-      }
+      // El efecto se encargará de la redirección, no intentamos navegar aquí
+      // para evitar condiciones de carrera
     } catch (err: any) {
       // Mostrar mensaje de error al usuario
       const errorMessage = err?.message || "Ocurrió un error al iniciar sesión";
@@ -336,7 +322,7 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col items-center justify-center space-y-2 pt-0">
               <div className="w-full border-t border-gray-200 dark:border-gray-700 my-2"></div>
               <p className="text-sm text-muted-foreground">
-                Tramet © {new Date().getFullYear()} | Todos los derechos reservados
+                Tramet {new Date().getFullYear()} | Todos los derechos reservados
               </p>
             </CardFooter>
           </Card>

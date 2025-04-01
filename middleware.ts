@@ -29,15 +29,10 @@ export function middleware(request: NextRequest) {
   // Obtener el token de la cookie
   const authCookie = request.cookies.get("auth-storage")?.value;
 
-  // Si es una ruta pública que no es /login, permitir acceso inmediato
-  if (isPublicPath(path)) {
-    return NextResponse.next();
-  }
-
   // Si no hay cookie de autenticación
   if (!authCookie) {
-    // Si intentan acceder a login sin cookie, permitir
-    if (path === "/login") {
+    // Si intentan acceder a una ruta pública, permitir
+    if (isPublicPath(path)) {
       return NextResponse.next();
     }
     // Para cualquier otra ruta, redirigir al login
@@ -91,7 +86,12 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(ROLE_ROUTES[userRole], request.url));
     }
 
-    // Redireccionar a la página principal según rol
+    // Si el usuario está autenticado e intenta acceder a una ruta pública, redirigirlo según su rol
+    if (isPublicPath(path)) {
+      return NextResponse.redirect(new URL(ROLE_ROUTES[userRole], request.url));
+    }
+
+    // Si el usuario está autenticado e intenta acceder a /, redirigirlo según su rol
     if (path === "/") {
       return NextResponse.redirect(new URL(ROLE_ROUTES[userRole], request.url));
     }

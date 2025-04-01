@@ -18,7 +18,8 @@ function DebugAuthStatus() {
         const authCookie = Cookies.get("auth-storage");
         const authData = authCookie ? JSON.parse(decodeURIComponent(authCookie)) : null;
 
-        setCookieStatus({
+        // Comparar valores previos con actuales antes de actualizar el estado
+        const newStatus = {
           cookieExists: !!authCookie,
           tokenExists: !!authData?.state?.token,
           authState: {
@@ -26,21 +27,38 @@ function DebugAuthStatus() {
             isInitialized,
             userRole: userData?.role || "no-role",
           },
-        });
+        };
 
-        console.log("Auth Status:", {
-          cookie: !!authCookie,
-          token: !!authData?.state?.token,
-          userData,
-          isAuthenticated,
-          isInitialized,
-        });
+        // Verificar si los datos han cambiado realmente antes de actualizar el estado
+        const shouldUpdate = !cookieStatus || 
+          cookieStatus.cookieExists !== newStatus.cookieExists ||
+          cookieStatus.tokenExists !== newStatus.tokenExists ||
+          cookieStatus.authState?.isAuthenticated !== newStatus.authState.isAuthenticated ||
+          cookieStatus.authState?.isInitialized !== newStatus.authState.isInitialized ||
+          cookieStatus.authState?.userRole !== newStatus.authState.userRole;
+
+        // Solo actualizar el estado si realmente cambió algo
+        if (shouldUpdate) {
+          setCookieStatus(newStatus);
+          
+          // Limitar logs solo a cambios significativos
+          console.log("Auth Status:", {
+            cookie: !!authCookie,
+            token: !!authData?.state?.token,
+            userData,
+            isAuthenticated,
+            isInitialized,
+          });
+        }
       } catch (e) {
         console.error("Error parsing auth cookie:", e);
-        setCookieStatus({ error: "Error parsing cookie" });
+        // Solo actualizar si es necesario para evitar bucles
+        if (!cookieStatus || !cookieStatus.error) {
+          setCookieStatus({ error: "Error parsing cookie" });
+        }
       }
     }
-  }, [userData, isAuthenticated, isInitialized]);
+  }, [userData, isAuthenticated, isInitialized]); // Eliminar cookieStatus de las dependencias
 
   // Solo mostrar en desarrollo
   if (process.env.NODE_ENV !== "development" || !cookieStatus) {
@@ -76,6 +94,7 @@ function AuthInitializer() {
 
   useEffect(() => {
     initialize().then(() => {
+      // Eliminado console.log innecesario
     });
   }, [initialize]);
 
