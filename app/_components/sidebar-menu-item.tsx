@@ -90,7 +90,8 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                   {
                     [activeItemClasses]: isSubMenuActive,
                   }
-                )}>
+                )}
+                onClick={toggleSubmenu}>
                 {buttonContent}
               </button>
             </TooltipTrigger>
@@ -102,13 +103,28 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                     key={index}
                     href={subItem.path || "#"}
                     className={classNames(
-                      `flex items-center min-h-[32px] py-1 px-4 ${itemBaseClasses}`,
+                      "block px-4 py-2 hover:bg-sidebar-muted",
                       {
                         [activeItemClasses]: pathname === subItem.path,
                       }
-                    )}>
-                    <div className="min-w-[20px]">{subItem.icon}</div>
-                    <span className="ml-3 text-sm leading-6 font-medium">{subItem.title}</span>
+                    )}
+                    onClick={(e) => {
+                      // Verificar contexto completo
+                      if (!subItem.path) return;
+                      if (subItem.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
+                        e.preventDefault();
+                        window.alert(`Para acceder a esta sección, primero selecciona: ${
+                          (!selectedSite ? "Sitio" : "") +
+                          (!selectedDepartment ? "Departamento" : "") +
+                          (!selectedArea ? "Área" : "")
+                        }`);
+                        return;
+                      }
+                    }}>
+                    <span className="flex items-center">
+                      <span className="mr-2 min-w-[20px] text-sidebar-foreground">{subItem.icon}</span>
+                      <span className="text-sidebar-foreground">{subItem.title}</span>
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -140,13 +156,26 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                 key={index}
                 href={subItem.path || "#"}
                 className={classNames(
-                  `flex items-center min-h-[32px] py-1 px-4 rounded-md ${itemBaseClasses}`,
+                  "flex items-center py-3 px-3 hover:bg-sidebar-muted",
                   {
                     [activeItemClasses]: pathname === subItem.path,
                   }
-                )}>
-                <div className="min-w-[20px]">{subItem.icon}</div>
-                <span className="ml-3 text-sm leading-6 font-medium">{subItem.title}</span>
+                )}
+                onClick={(e) => {
+                  // Verificar contexto completo
+                  if (!subItem.path) return;
+                  if (subItem.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
+                    e.preventDefault();
+                    window.alert(`Para acceder a esta sección, primero selecciona: ${
+                      (!selectedSite ? "Sitio" : "") +
+                      (!selectedDepartment ? "Departamento" : "") +
+                      (!selectedArea ? "Área" : "")
+                    }`);
+                    return;
+                  }
+                }}>
+                <div className="mr-2 min-w-[20px] text-sidebar-foreground">{subItem.icon}</div>
+                <span className="text-sidebar-foreground">{subItem.title}</span>
               </Link>
             ))}
           </div>
@@ -160,11 +189,24 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
     <Link
       href={item.path || "#"}
       className={classNames(
-        `flex items-center min-h-[40px] h-full py-2 px-4 rounded-md ${itemBaseClasses}`,
+        `flex items-center w-full justify-start min-h-[40px] py-2 px-4 rounded-md ${itemBaseClasses}`,
         {
           [activeItemClasses]: pathname === item.path,
         }
-      )}>
+      )}
+      onClick={(e) => {
+        // Verificar contexto completo
+        if (!item.path) return;
+        if (item.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
+          e.preventDefault();
+          window.alert(`Para acceder a esta sección, primero selecciona: ${
+            (!selectedSite ? "Sitio" : "") +
+            (!selectedDepartment ? "Departamento" : "") +
+            (!selectedArea ? "Área" : "")
+          }`);
+          return;
+        }
+      }}>
       {buttonContent}
     </Link>
   );
