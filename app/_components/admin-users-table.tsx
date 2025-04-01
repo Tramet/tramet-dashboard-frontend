@@ -31,7 +31,7 @@ import { Input } from "@trm/_components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@trm/_components/ui/table";
 import { CreateUserDialog } from "@trm/_components/create-user-dialog";
 import { toast } from "sonner";
-import UserPermissionsDialog from "./user-permissions-dialog";
+import UserPermissionsDialog from "./users/user-permissions-dialog";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { getAllUsers, deleteUser, updateUserPermissions } from "@trm/_api/admin/users";
 import { Combobox } from "@trm/_layout/combobox/combobox";
@@ -41,10 +41,6 @@ import { useMediaQuery } from "@trm/_hooks/use-media-query";
 export type User = {
   id: string;
   user: string;
-  password: string;
-  // Campos opcionales para mantener compatibilidad
-  status?: "active" | "inactive";
-  fullName?: string;
   position?: string;
   permissions?: {
     sites: string[];
@@ -54,6 +50,36 @@ export type User = {
     screens: string[];
   };
 };
+
+// Interfaz para la estructura de usuario que viene de la API
+export interface ApiUser {
+  id: number;
+  username: string;
+  settings: {
+    id: number;
+    language: string;
+    theme: string;
+    notifications: boolean;
+  };
+  role: {
+    id: number;
+    name: string;
+  };
+  userauthorities: Array<{
+    id: number;
+    authority: {
+      id: number;
+      name: string;
+    }
+  }>;
+  accountNonExpired: boolean;
+  credentialsNonExpired: boolean;
+  accountNonLocked: boolean;
+  authorities: Array<{
+    authority: string;
+  }>;
+  enabled: boolean;
+}
 
 // Datos predeterminados para los permisos cuando no están en la API
 const defaultPermissions = {
@@ -160,9 +186,6 @@ const mockUsers: User[] = [
   {
     id: "1",
     user: "admin",
-    password: "admin123",
-    status: "active",
-    fullName: "Administrador Principal",
     position: "Gerente de Sistemas",
     permissions: {
       sites: ["site1", "site2"],
@@ -175,9 +198,6 @@ const mockUsers: User[] = [
   {
     id: "2",
     user: "supervisor",
-    password: "super123",
-    status: "active",
-    fullName: "Supervisor de Planta",
     position: "Supervisor",
     permissions: {
       sites: ["site1"],
@@ -190,9 +210,6 @@ const mockUsers: User[] = [
   {
     id: "3",
     user: "operador",
-    password: "oper123",
-    status: "active",
-    fullName: "Operador de Línea",
     position: "Operador",
     permissions: {
       sites: ["site1"],
@@ -205,9 +222,6 @@ const mockUsers: User[] = [
   {
     id: "4",
     user: "analista",
-    password: "anal123",
-    status: "active",
-    fullName: "Analista de Datos",
     position: "Analista",
     permissions: {
       sites: ["site2"],
@@ -220,9 +234,6 @@ const mockUsers: User[] = [
   {
     id: "5",
     user: "tecnico",
-    password: "tec123",
-    status: "inactive",
-    fullName: "Técnico de Mantenimiento",
     position: "Técnico",
     permissions: {
       sites: ["site1", "site2"],
@@ -335,11 +346,11 @@ export function AdminUsersTable() {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => {
-                  navigator.clipboard.writeText(user.password);
-                  toast.success("Contraseña copiada al portapapeles");
+                  navigator.clipboard.writeText(user.user);
+                  toast.success("Usuario copiado al portapapeles");
                 }}
               >
-                Copiar Contraseña
+                Copiar Usuario
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
@@ -359,14 +370,32 @@ export function AdminUsersTable() {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // Usar datos falsos para desarrollo
-      setTimeout(() => {
-        setUsers(mockUsers);
+      if (!isAuthenticated) {
         setIsLoading(false);
-      }, 500); // Simular tiempo de carga
+        return null;
+      }
+      
+      // Obtener usuarios reales mediante la API
+      const apiUsers = await getAllUsers(token as string);
+      
+      // Mapear la estructura de la API a la estructura esperada por el frontend
+      const usersWithMockedPermissions: User[] = apiUsers.map(apiUser => {
+        // Buscar si existe un usuario mockeado con el mismo nombre de usuario
+        const mockedUser = mockUsers.find(mock => mock.user === apiUser.username);
+        
+        return {
+          id: apiUser.id.toString(),
+          user: apiUser.username,
+          position: apiUser.role.name,
+          permissions: mockedUser?.permissions || defaultPermissions
+        };
+      });
+      
+      setUsers(usersWithMockedPermissions);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
       toast.error(error instanceof Error ? error.message : "Error al cargar los usuarios");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -377,14 +406,31 @@ export function AdminUsersTable() {
       return;
     }
     
+    if (!isAuthenticated) {
+      return null;
+    }
+    
     try {
-      // Eliminar usuario de los datos falsos
+      // Verificar que userId sea válido
+      if (!userId) {
+        throw new Error("ID de usuario no válido");
+      }
+      
+      // Eliminar usuario mediante la API
+      await deleteUser(token as string, userId);
+      
+      // Actualizar la lista de usuarios sin esperar a que se actualice la lista completa
       setUsers(prev => prev.filter(user => user.id !== userId));
       
       toast.success("Usuario eliminado con éxito");
+      
+      // Refrescar la lista de usuarios después de un breve delay
+      setTimeout(() => {
+        fetchUsers();
+      }, 1000);
     } catch (error) {
-      console.error("Error al eliminar usuario:", error);
-      toast.error(error instanceof Error ? error.message : "Error al eliminar el usuario");
+      const errorMessage = error instanceof Error ? error.message : "Error al eliminar el usuario";
+      toast.error(errorMessage);
     }
   };
 

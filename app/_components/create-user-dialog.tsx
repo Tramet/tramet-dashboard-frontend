@@ -49,11 +49,13 @@ export const CreateUserDialog = () => {
 
       // Éxito
       toast.success("Usuario creado con éxito");
-      setFormData({ user: "", password: "" });
-      setIsOpen(false); // Cerrar el diálogo
       
-      // Disparar evento para refrescar la tabla
-      window.dispatchEvent(new CustomEvent("refreshUsersTable"));
+      // Disparar evento para actualizar la tabla
+      window.dispatchEvent(new Event("refreshUsersTable"));
+      
+      // Reiniciar el formulario y cerrar el diálogo
+      setFormData({ user: "", password: "" });
+      setIsOpen(false);
     } catch (error) {
       console.error("Error al crear usuario:", error);
       toast.error(error instanceof Error ? error.message : "Error al crear el usuario");
@@ -65,48 +67,58 @@ export const CreateUserDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="btn-primary-gradient">+ Agregar Usuario</Button>
+        <Button 
+          variant="default" 
+          size="sm"
+          className="text-xs sm:text-sm"
+          style={{ backgroundColor: 'hsl(23, 95%, 55%)' }} // Color naranja corporativo
+        >
+          <span className="sm:inline">Crear Usuario</span>
+        </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Agregar Usuario</DialogTitle>
-        <DialogDescription>Ingresa la información para crear un nuevo usuario.</DialogDescription>
-        
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="user">Nombre de Usuario</Label>
-            <Input 
-              id="user" 
+      <DialogContent className="sm:max-w-md">
+        <DialogTitle>Crear Nuevo Usuario</DialogTitle>
+        <DialogDescription>
+          Ingresa la información del nuevo usuario. La contraseña que asignes será la inicial y el usuario podrá cambiarla después.
+        </DialogDescription>
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="user" className="text-right">
+              Usuario
+            </Label>
+            <Input
+              id="user"
               name="user"
               value={formData.user}
               onChange={handleChange}
-              placeholder="usuario123" 
-              className="text-sidebar-foreground" 
-              required
+              className="col-span-3"
+              autoComplete="off"
             />
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input 
-              id="password" 
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="password" className="text-right">
+              Contraseña
+            </Label>
+            <Input
+              id="password"
               name="password"
-              type="password" 
+              type="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••" 
-              className="text-sidebar-foreground" 
-              required
+              className="col-span-3"
+              autoComplete="off"
             />
           </div>
-          
-          <DialogFooter className="mt-6">
+          <DialogFooter className="sm:justify-end">
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancelar</Button>
+              <Button type="button" variant="secondary">
+                Cancelar
+              </Button>
             </DialogClose>
             <Button 
-              type="submit" 
+              type="submit"
               disabled={isLoading}
-              className={isLoading ? "" : "btn-primary-gradient"}
+              style={{ backgroundColor: isLoading ? 'gray' : 'hsl(23, 95%, 55%)' }} // Color naranja corporativo
             >
               {isLoading ? "Creando..." : "Crear Usuario"}
             </Button>
