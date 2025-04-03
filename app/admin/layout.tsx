@@ -1,6 +1,6 @@
 "use client";
-import { SideBar } from "@trm/_layout/sidebar/sidebar";
-import Header from "@trm/_layout/header/header";
+import { SideBar } from "@trm/_components/_layout/sidebar/sidebar";
+import Header from "@trm/_components/_layout/header/header";
 import PageWrapper from "@trm/_components/pagewrapper";
 import { RouteGuard } from "@trm/_components/route-guard";
 
