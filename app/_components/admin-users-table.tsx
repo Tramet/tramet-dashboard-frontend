@@ -30,6 +30,7 @@ import {
 import { Input } from "@trm/_components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@trm/_components/ui/table";
 import { CreateUserDialog } from "@trm/_components/create-user-dialog";
+import { toast } from "sonner";
 import UserPermissionsDialog from "./users/user-permissions-dialog";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { getAllUsers, deleteUser, updateUserPermissions } from "@trm/_api/admin/users";
@@ -305,9 +306,11 @@ export function AdminUsersTable() {
                 }
                 
                 await updateUserPermissions(token, row.original.id, updatedPermissions);
+                toast.success("Permisos actualizados correctamente");
                 fetchUsers(); // Recargar la lista para mostrar los cambios
               } catch (error) {
                 console.error("Error al actualizar permisos:", error);
+                toast.error(error instanceof Error ? error.message : "Error al actualizar los permisos");
               }
             }}
           />
@@ -336,6 +339,7 @@ export function AdminUsersTable() {
               <DropdownMenuItem 
                 onClick={() => {
                   navigator.clipboard.writeText(user.id);
+                  toast.success("ID copiado al portapapeles");
                 }}
               >
                 Copiar ID
@@ -343,6 +347,7 @@ export function AdminUsersTable() {
               <DropdownMenuItem 
                 onClick={() => {
                   navigator.clipboard.writeText(user.user);
+                  toast.success("Usuario copiado al portapapeles");
                 }}
               >
                 Copiar Usuario
@@ -389,6 +394,7 @@ export function AdminUsersTable() {
       setUsers(usersWithMockedPermissions);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
+      toast.error(error instanceof Error ? error.message : "Error al cargar los usuarios");
     } finally {
       setIsLoading(false);
     }
