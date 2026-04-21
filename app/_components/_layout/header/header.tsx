@@ -1,20 +1,12 @@
 "use client";
 import { ThemeSwitcher } from "@trm/_components/theme-switcher";
-import { Combobox } from "@trm/_layout/combobox/combobox";
-import { COMBOBOX_LISTS } from "@trm/_layout/combobox/comboboxLists";
-import { CarouselAreas } from "@trm/_layout/carousel-areas/carousel-areas";
-
-import useDepartmentSelection from "@trm/_hooks/use-department-selection";
-import useAreaSelection from "@trm/_hooks/use-area-selection";
+import { ContextSelector } from "../context-selector/context-selector";
 import classNames from "classnames";
 import { Avatar, AvatarFallback, AvatarImage } from "@trm/_components/ui/avatar";
 import { NotificationsPopover } from "../notifications-popover/notifications-popover";
-import Link from "next/link";
 import { MobileSidebar } from "../mobile-sidebar/mobile-sidebar";
 import CompanyLogo from "../company-logo/company-logo";
-import Image from "next/image";
-import adminBtn from "../../../public/adminBtn.png";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@trm/_components/ui/button";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { useTheme } from "next-themes";
@@ -48,16 +40,8 @@ const USER: UserDetails = {
 
 export default function Header() {
   const router = useRouter();
-  const pathname = usePathname();
   const { userData, logout } = useAuth();
   const { theme } = useTheme();
-
-  const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
-  const { selectedArea, setSelectedArea } = useAreaSelection();
-
-  const handleDepartmentChange = (value: string | null) => {
-    setSelectedDepartment(value);
-  };
 
   const handleLogout = () => {
     logout();
@@ -67,10 +51,10 @@ export default function Header() {
   const isCustomTheme = theme === "custom";
 
   const headerStyle = classNames(
-    "fixed w-full z-40 px-4 shadow-md text-navbar-foreground",
+    "fixed w-full z-40 px-4 shadow-md text-navbar-foreground border-b",
     {
       "bg-navbar": !isCustomTheme,
-      "navbar-gradient": isCustomTheme,
+      "navbar-gradient border-none": isCustomTheme,
     }
   );
 
@@ -84,59 +68,50 @@ export default function Header() {
 
   return (
     <header className={headerStyle}>
-      <div className="flex h-16 items-center justify-end md:justify-between">
-        <section className="hidden md:flex items-center gap-x-4">
-          {/* Company Selection */}
+      <div className="flex h-16 items-center justify-between">
+        <section className="flex items-center gap-x-6">
           <CompanyLogo />
+          <div className="hidden lg:block h-6 w-[1px] bg-border mx-2" />
+          <div className="hidden lg:block">
+            <ContextSelector />
+          </div>
         </section>
 
         {/* Right side items */}
-        <section className="flex items-center justify-between gap-3">
-          {/* Notifications Popover */}
-          <section>
+        <section className="flex items-center gap-3">
+          <section className="hidden sm:block">
             <NotificationsPopover />
           </section>
 
-          <section>
+          <section className="hidden sm:block">
             <ThemeSwitcher />
           </section>
 
-          {/* MobileSidebar trigger */}
-          <section className="flex md:hidden justify-center items-center">
-            <MobileSidebar />
-          </section>
-
           {/* User Dropdown Menu */}
-          <section className="hidden md:block">
+          <section>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={userButtonStyle}>
-                  <div className={classNames("h-10 w-10 rounded-full flex items-center justify-center text-center", {
-                    "bg-sidebar-muted": !isCustomTheme,
-                    "bg-white/10": isCustomTheme,
-                  })}>
-                    <Avatar className="h-10 w-10 rounded-full">
-                      <AvatarImage
-                        className="rounded-full"
-                        src={userData?.sub ? "/avatars/02.png" : USER.img}
-                        alt={userData?.sub || USER.fullName}
-                      />
-                      <AvatarFallback>
-                        {userData?.sub ? userData.sub.substring(0, 2).toUpperCase() : "TRM"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <span className="text-xs opacity-70">
+                  <Avatar className="h-9 w-9 border-2 border-white/20">
+                    <AvatarImage
+                      src={userData?.sub ? "/avatars/02.png" : USER.img}
+                      alt={userData?.sub || USER.fullName}
+                    />
+                    <AvatarFallback className="bg-primary/20 text-primary">
+                      {userData?.sub ? userData.sub.substring(0, 2).toUpperCase() : "TRM"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:flex flex-col items-start justify-center ml-1">
+                    <span className="text-[10px] uppercase tracking-wider opacity-70">
                       {userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN"
                         ? "Administrador"
                         : USER.position}
                     </span>
-                    <span className="text-sm font-medium">{userData?.sub || USER.fullName}</span>
+                    <span className="text-sm font-semibold">{userData?.sub || USER.fullName}</span>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
@@ -144,15 +119,21 @@ export default function Header() {
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive hover:text-destructive" onClick={handleLogout}>
+                <DropdownMenuItem className="text-destructive focus:bg-destructive/10" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </section>
+
+          {/* MobileSidebar trigger */}
+          <section className="md:hidden">
+            <MobileSidebar />
+          </section>
         </section>
       </div>
     </header>
   );
 }
+

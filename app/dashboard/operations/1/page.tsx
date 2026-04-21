@@ -3,16 +3,14 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@trm/_lib/auth/auth-context";
-import useSiteSelection from "@trm/_hooks/use-site-selection";
-import useDepartmentSelection from "@trm/_hooks/use-department-selection";
-import useAreaSelection from "@trm/_hooks/use-area-selection";
+import useContextStore from "@trm/_hooks/use-context-store";
+import { Card, CardContent, CardHeader, CardTitle } from "@trm/_components/ui/card";
+import { Badge } from "@trm/_components/ui/badge";
 
 export default function Operation1Page() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const { selectedSite } = useSiteSelection();
-  const { selectedDepartment } = useDepartmentSelection();
-  const { selectedArea } = useAreaSelection();
+  const { selectedSite, selectedDepartment, selectedArea } = useContextStore();
 
   // Verificar que hay un contexto completo seleccionado
   useEffect(() => {
@@ -21,46 +19,72 @@ export default function Operation1Page() {
     }
   }, [selectedSite, selectedDepartment, selectedArea, router]);
 
-  // Si no hay contexto completo, no renderizar nada
+  // Si no hay contexto completo, no renderizar nada mientras redirige
   if (!selectedSite || !selectedDepartment || !selectedArea) {
     return null;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Operación 1</h1>
-      <div className="bg-muted p-4 rounded-lg mb-6">
-        <h2 className="font-medium mb-2">Contexto actual:</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <span className="text-sm text-muted-foreground">Sitio:</span>
-            <p>{selectedSite}</p>
-          </div>
-          <div>
-            <span className="text-sm text-muted-foreground">Departamento:</span>
-            <p>{selectedDepartment}</p>
-          </div>
-          <div>
-            <span className="text-sm text-muted-foreground">Área:</span>
-            <p>{selectedArea}</p>
-          </div>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Operación 1</h1>
+          <p className="text-muted-foreground">Panel de gestión operativo</p>
         </div>
-      </div>
+        <div className="flex gap-2">
+          <Badge variant="outline" className="bg-primary/5">{selectedSite}</Badge>
+          <Badge variant="outline" className="bg-primary/5">{selectedDepartment}</Badge>
+          <Badge variant="outline" className="bg-primary/5">{selectedArea}</Badge>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="border rounded-lg p-4">
-          <h3 className="font-semibold mb-2">Operación 1 - Panel de control</h3>
-          <p className="text-sm text-muted-foreground">
-            Esta es la interfaz para gestionar la Operación 1 dentro del contexto seleccionado.
-          </p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <h3 className="font-semibold mb-2">Métricas</h3>
-          <p className="text-sm text-muted-foreground">
-            Visualización de métricas y KPIs relevantes para esta operación.
-          </p>
-        </div>
+      <Card className="bg-muted/30">
+        <CardHeader>
+          <CardTitle className="text-lg">Información de Contexto</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="space-y-1">
+              <span className="text-xs uppercase text-muted-foreground font-semibold">Sitio</span>
+              <p className="font-medium">{selectedSite}</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs uppercase text-muted-foreground font-semibold">Departamento</span>
+              <p className="font-medium">{selectedDepartment}</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs uppercase text-muted-foreground font-semibold">Área</span>
+              <p className="font-medium">{selectedArea}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="border shadow-none">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Panel de Control</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Esta es la interfaz principal para gestionar los flujos de la **Operación 1**. 
+              Aquí se visualizarán las acciones específicas permitidas para el área de {selectedArea}.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border shadow-none">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Métricas de Operación</CardTitle>
+          </CardHeader>
+          <CardContent className="h-32 flex items-center justify-center border-2 border-dashed rounded-md bg-muted/20">
+            <p className="text-xs text-muted-foreground">
+              [Gráficos y KPIs de {selectedArea} se cargarán aquí]
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
+

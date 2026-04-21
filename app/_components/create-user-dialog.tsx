@@ -5,7 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, Dia
 import { Button } from "@trm/_components/ui/button";
 import { Label } from "@trm/_components/ui/label";
 import { Input } from "@trm/_components/ui/input";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { createUser } from "@trm/_api/admin/users";
 
@@ -31,37 +31,56 @@ export const CreateUserDialog = () => {
     event.preventDefault();
     setIsLoading(true);
 
-    try {
-      // Validar que los campos no estén vacíos
-      if (!formData.user || !formData.password) {
-        toast.error("Por favor, completa todos los campos");
-        setIsLoading(false);
-        return;
+    // Validar que los campos no estén vacíos
+    if (!formData.user || !formData.password) {
+      toast.error("Por favor, completa todos los campos");
+      setIsLoading(false);
+      return;
+    }
+
+    // Verificar que hay un token válido
+    if (!token || !isAuthenticated) {
+      toast.error("No hay un token de autenticación válido");
+      setIsLoading(false);
+      return;
+    }
+
+    // Utilizar toast.promise para crear el usuario
+    await toast.promise(
+      createUser(token, formData),
+      {
+        loading: 'Creando usuario...',
+        success: 'Usuario creado con éxito',
+        error: (err) => `Error: ${err instanceof Error ? err.message : 'Error al crear usuario'}`
+      },
+      {
+        style: {
+          minWidth: '250px',
+        },
+        success: {
+          duration: 5000,
+          iconTheme: {
+            primary: 'hsl(23, 95%, 55%)',
+            secondary: 'white',
+          },
+        },
       }
-
-      // Verificar que hay un token válido
-      if (!token || !isAuthenticated) {
-        throw new Error("No hay un token de autenticación válido");
-      }
-
-      // Utilizar la función de API para crear el usuario
-      await createUser(token, formData);
-
-      // Éxito
-      toast.success("Usuario creado con éxito");
-      
+    )
+    .then(() => {
       // Disparar evento para actualizar la tabla
       window.dispatchEvent(new Event("refreshUsersTable"));
       
       // Reiniciar el formulario y cerrar el diálogo
       setFormData({ user: "", password: "" });
       setIsOpen(false);
-    } catch (error) {
+    })
+    .catch((error) => {
       console.error("Error al crear usuario:", error);
-      toast.error(error instanceof Error ? error.message : "Error al crear el usuario");
-    } finally {
+      // El error ya está gestionado por toast.promise
+    })
+    .finally(() => {
       setIsLoading(false);
-    }
+    });
   };
 
   return (

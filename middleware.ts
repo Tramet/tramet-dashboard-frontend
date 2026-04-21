@@ -40,20 +40,40 @@ export function middleware(request: NextRequest) {
   }
 
   try {
-    // Extraer el token JWT del estado almacenado
-    const authData = JSON.parse(decodeURIComponent(authCookie));
-    const token = authData.state?.token;
+    // Extraer el token JWT del estado almacenado (Zustand persist)
+    // El formato suele ser: {"state":{"token":"..."},"version":0}
+    let token: string | null = null;
+    
+    try {
+      const decodedCookie = decodeURIComponent(authCookie);
+      const authData = JSON.parse(decodedCookie);
+      token = authData.state?.token || null;
+    } catch (e) {
+      console.warn("Middleware: Error al parsear cookie auth-storage", e);
+    }
 
     if (!token) {
-      throw new Error("Token no encontrado");
+      if (isPublicPath(path)) return NextResponse.next();
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
     // Decodificar el token y comprobar estructura
-    const decoded = jwtDecode<any>(token);
+    let decoded: any;
+    try {
+      decoded = jwtDecode<any>(token);
+    } catch (e) {
+      console.error("Middleware: Token inválido", e);
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("auth-storage");
+      return response;
+    }
 
     // Verificar expiración
     if (decoded.exp * 1000 < Date.now()) {
-      throw new Error("Token expirado");
+      console.warn("Middleware: Token expirado");
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("auth-storage");
+      return response;
     }
 
     // Extraer el rol - comprobando diferentes posibles campos

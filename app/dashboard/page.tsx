@@ -1,70 +1,125 @@
 "use client";
 
-import { useEffect } from "react";
-import SelectionFlow from "@trm/_components/selection-flow/selection-flow";
 import { useAuth } from "@trm/_lib/auth/auth-context";
-import useSiteSelection from "@trm/_hooks/use-site-selection";
-import useDepartmentSelection from "@trm/_hooks/use-department-selection";
-import useAreaSelection from "@trm/_hooks/use-area-selection";
+import useContextStore from "@trm/_hooks/use-context-store";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@trm/_components/ui/card";
+import { Button } from "@trm/_components/ui/button";
+import { useRouter } from "next/navigation";
+import { BsKanban, BsGear, BsListUl, BsEnvelope, BsHouseDoor } from "react-icons/bs";
 
 export default function DashboardPage() {
   const { userData } = useAuth();
-  const { selectedSite } = useSiteSelection();
-  const { selectedDepartment } = useDepartmentSelection();
-  const { selectedArea } = useAreaSelection();
+  const { selectedSite, selectedDepartment, selectedArea } = useContextStore();
+  const router = useRouter();
 
-  // Check if context is complete
-  const hasCompleteContext = selectedSite && selectedDepartment && selectedArea;
+  // Si no hay contexto, mostramos una bienvenida general con invitación a seleccionar
+  const isContextComplete = !!(selectedSite && selectedDepartment && selectedArea);
 
   return (
-    <div className="h-full w-full">
-      {/* Welcome message or context selector based on selection state */}
-      {!hasCompleteContext ? (
-        <SelectionFlow />
-      ) : (
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Bienvenido, {userData?.sub || "Usuario"}</h1>
-          <p className="text-muted-foreground mb-4">Se ha seleccionado la siguiente configuración:</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="p-4 border rounded-lg">
-              <h3 className="font-medium">Sitio</h3>
-              <p>{selectedSite}</p>
-            </div>
-            <div className="p-4 border rounded-lg">
-              <h3 className="font-medium">Departamento</h3>
-              <p>{selectedDepartment}</p>
-            </div>
-            <div className="p-4 border rounded-lg">
-              <h3 className="font-medium">Área</h3>
-              <p>{selectedArea}</p>
-            </div>
-          </div>
+    <div className="p-6 h-full w-full overflow-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Bienvenido, {userData?.sub || "Usuario"}
+          </h1>
+          <p className="text-muted-foreground">
+            {isContextComplete 
+              ? `Gestionando ${selectedArea} en ${selectedDepartment} (${selectedSite})`
+              : "Selecciona un sitio, departamento y área en la barra superior para comenzar."}
+          </p>
+        </header>
 
-          {/* Dashboard content will go here */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-6 border rounded-lg">
-              <h3 className="font-semibold mb-2">Dashboard</h3>
-              <p className="text-sm text-muted-foreground">Visualización general del área seleccionada</p>
-            </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="font-semibold mb-2">Operaciones</h3>
-              <p className="text-sm text-muted-foreground">Gestión de operaciones del área</p>
-            </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="font-semibold mb-2">Gestión</h3>
-              <p className="text-sm text-muted-foreground">Administración de recursos</p>
-            </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="font-semibold mb-2">Auto-admin</h3>
-              <p className="text-sm text-muted-foreground">Configuración de tu cuenta y permisos</p>
-            </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="font-semibold mb-2">Material de apoyo</h3>
-              <p className="text-sm text-muted-foreground">Documentación y recursos de ayuda</p>
-            </div>
+        {isContextComplete ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard")}>
+              <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <BsHouseDoor className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Vista General</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Resumen de indicadores y métricas principales del área.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/operations/1")}>
+              <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <BsKanban className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Operaciones</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Gestión activa y monitoreo de las operaciones diarias.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/management")}>
+              <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <BsGear className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Gestión</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Administración de recursos, equipos y configuraciones.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/autoadmin")}>
+              <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <BsListUl className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Auto-administración</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Configuración de cuenta, permisos y preferencias personales.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/support")}>
+              <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <BsEnvelope className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Soporte y Ayuda</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Manuales, guías y contacto con el equipo de asistencia.
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      )}
+        ) : (
+          <Card className="bg-muted/50 border-dashed">
+            <CardHeader>
+              <CardTitle>Configuración Requerida</CardTitle>
+              <CardDescription>
+                Para mostrarte información relevante, necesitamos saber en qué contexto laboral te encuentras.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center py-10">
+              <div className="text-center space-y-4">
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                  Utiliza el selector en la esquina superior para elegir tu Sitio, Departamento y Área.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
+
