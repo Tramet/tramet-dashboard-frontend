@@ -4,12 +4,16 @@ import Cookies from "js-cookie";
 
 interface ContextState {
   selectedSite: string | null;
+  siteName: string | null;
   selectedDepartment: string | null;
+  departmentName: string | null;
   selectedArea: string | null;
+  areaName: string | null;
   
-  setSite: (site: string | null) => void;
-  setDepartment: (dept: string | null) => void;
-  setArea: (area: string | null) => void;
+  setSite: (site: string | null, name?: string | null) => void;
+  setDepartment: (dept: string | null, name?: string | null) => void;
+  setArea: (area: string | null, name?: string | null) => void;
+  updateNames: (siteName?: string, deptName?: string, areaName?: string) => void;
   resetContext: () => void;
 }
 
@@ -30,28 +34,46 @@ export const useContextStore = create<ContextState>()(
   persist(
     (set) => ({
       selectedSite: null,
+      siteName: null,
       selectedDepartment: null,
+      departmentName: null,
       selectedArea: null,
+      areaName: null,
 
-      setSite: (site) => set({ 
+      setSite: (site, name = null) => set({ 
         selectedSite: site, 
+        siteName: name,
         selectedDepartment: null, 
-        selectedArea: null 
+        departmentName: null,
+        selectedArea: null,
+        areaName: null
       }),
       
-      setDepartment: (dept) => set({ 
+      setDepartment: (dept, name = null) => set({ 
         selectedDepartment: dept, 
-        selectedArea: null 
+        departmentName: name,
+        selectedArea: null,
+        areaName: null
       }),
       
-      setArea: (area) => set({ 
-        selectedArea: area 
+      setArea: (area, name = null) => set({ 
+        selectedArea: area,
+        areaName: name
       }),
+
+      updateNames: (siteName, deptName, areaName) => set((state) => ({
+        siteName: siteName !== undefined ? siteName : state.siteName,
+        departmentName: deptName !== undefined ? deptName : state.departmentName,
+        areaName: areaName !== undefined ? areaName : state.areaName,
+      })),
 
       resetContext: () => set({ 
         selectedSite: null, 
+        siteName: null,
         selectedDepartment: null, 
-        selectedArea: null 
+        departmentName: null,
+        selectedArea: null,
+        areaName: null
       }),
     }),
     {

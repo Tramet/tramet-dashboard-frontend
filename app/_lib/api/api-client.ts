@@ -48,6 +48,15 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     });
 
     if (!response.ok) {
+      // Si es un 403 (Forbidden), lo manejamos de forma especial
+      if (response.status === 403) {
+        console.warn(`Acceso denegado (403) a: ${url}. Es posible que el usuario no tenga permisos para este recurso específico.`);
+        // No lanzamos error ni mostramos toast para evitar spam en la UI, 
+        // simplemente devolvemos un valor que indique fallo de permisos si es necesario
+        // o dejamos que el llamador lo maneje.
+        throw new Error("FORBIDDEN");
+      }
+
       let errorMessage = `Error ${response.status}: ${response.statusText}`;
       
       try {

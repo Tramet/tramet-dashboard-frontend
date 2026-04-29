@@ -1,135 +1,106 @@
-import React from "react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+"use client";
 
+import React, { useEffect, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "@trm/_components/ui/custom/data-table";
+import { getSites, Site } from "@trm/_api/sites";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@trm/_components/ui/button";
 
-export type Sites = {
+export type SiteRow = {
   id: string;
   site: string;
-  status: "operativo" | "inoperativo";
+  city: string;
+  state: string;
+  country: string;
+  customer: string;
 };
 
-export const sites: Sites[] = [
-  {
-    id: "1",
-    site: "Sitio 1",
-    status: "operativo",
-  },
-  {
-    id: "2",
-    site: "Sitio 2",
-    status: "inoperativo",
-  },
-  {
-    id: "3",
-    site: "Sitio 3",
-    status: "operativo",
-  },
-  {
-    id: "4",
-    site: "Sitio 4",
-    status: "inoperativo",
-  },
-  {
-    id: "5",
-    site: "Sitio 5",
-    status: "operativo",
-  },
-  {
-    id: "6",
-    site: "Sitio 6",
-    status: "inoperativo",
-  },
-  {
-    id: "7",
-    site: "Sitio 7",
-    status: "operativo",
-  },
-  {
-    id: "8",
-    site: "Sitio 8",
-    status: "inoperativo",
-  },
-  {
-    id: "9",
-    site: "Sitio 9",
-    status: "operativo",
-  },
-  {
-    id: "10",
-    site: "Sitio 10",
-    status: "inoperativo",
-  },
-  {
-    id: "11",
-    site: "Sitio 11",
-    status: "operativo",
-  },
-  {
-    id: "12",
-    site: "Sitio 12",
-    status: "inoperativo",
-  },
-  {
-    id: "13",
-    site: "Sitio 13",
-    status: "operativo",
-  },
-  {
-    id: "14",
-    site: "Sitio 14",
-    status: "inoperativo",
-  },
-  {
-    id: "15",
-    site: "Sitio 15",
-    status: "operativo",
-  },
-  {
-    id: "16",
-    site: "Sitio 16",
-    status: "inoperativo",
-  },
-  {
-    id: "17",
-    site: "Sitio 17",
-    status: "operativo",
-  },
-  {
-    id: "18",
-    site: "Sitio 18",
-    status: "inoperativo",
-  },
-  {
-    id: "19",
-    site: "Sitio 19",
-    status: "operativo",
-  },
-];
-
-const columnHelper = createColumnHelper<Sites>();
+const columnHelper = createColumnHelper<SiteRow>();
 
 export const columns = [
-  columnHelper.accessor("site", {
-    header: "Sitios",
+  columnHelper.accessor("id", {
+    header: "ID",
   }),
-  columnHelper.accessor("status", {
+  columnHelper.accessor("site", {
+    header: "Sucursal",
+    enableSorting: true,
+  }),
+  columnHelper.accessor("city", {
+    header: "Ciudad",
+    enableSorting: true,
+  }),
+  columnHelper.accessor("state", {
     header: "Estado",
+    enableSorting: true,
+  }),
+  columnHelper.accessor("country", {
+    header: "País",
+    enableSorting: true,
+  }),
+  columnHelper.accessor("customer", {
+    header: "Cliente",
     enableSorting: true,
   }),
 ];
 
 export function AdminSitesTable() {
+  const [sites, setSites] = useState<SiteRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSites = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getSites();
+      const rows: SiteRow[] = data.map((site: Site) => ({
+        id: site.id.toString(),
+        site: site.site,
+        city: site.city || "",
+        state: site.state || "",
+        country: site.country || "",
+        customer: site.customer?.name || "Sin cliente",
+      }));
+      setSites(rows);
+    } catch (error) {
+      console.error("Error al cargar sitios:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSites();
+  }, []);
+
   return (
-    <div className="w-full max-w-2xl">
-      <DataTable
-        data={sites}
-        columns={columns}
-        filterColumn={{
-          key: "site",
-          label: "Sitio",
-        }}
-        pageSize={10}></DataTable>
+    <div className="w-full">
+      <div className="flex justify-end mb-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchSites}
+          disabled={isLoading}
+          className="flex items-center gap-1 text-xs"
+        >
+          <RefreshCw className={`h-3 w-3 ${isLoading ? "animate-spin" : ""}`} />
+          Actualizar
+        </Button>
+      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-24 text-muted-foreground">
+          Cargando sitios...
+        </div>
+      ) : (
+        <DataTable
+          data={sites}
+          columns={columns}
+          filterColumn={{
+            key: "site",
+            label: "Sucursal",
+          }}
+          pageSize={10}
+        />
+      )}
     </div>
   );
 }

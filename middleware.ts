@@ -121,8 +121,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    if (path.startsWith("/dashboard") && userRole !== "USER") {
-      return NextResponse.redirect(new URL("/admin", request.url));
+    // Permitir que los admins accedan al dashboard (para ver operaciones)
+    // Antes se les redirigía forzosamente a /admin
+    if (path.startsWith("/dashboard") && !userRole) {
+       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     // Si todo está correcto, permitir acceso

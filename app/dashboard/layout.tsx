@@ -12,7 +12,7 @@ import { RouteGuard } from "@trm/_components/route-guard";
  */
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RouteGuard allowedRoles={["USER"]}>
+    <RouteGuard allowedRoles={["USER", "TRAMET_ADMIN", "CUSTOMER_ADMIN"]}>
       <>
         <Header />
         <div className="flex h-full w-full justify-center">

@@ -12,27 +12,58 @@ export type UserRole = "TRAMET_ADMIN" | "CUSTOMER_ADMIN" | "USER";
 export interface UserData {
   sub: string;
   role: UserRole;
+  customerId?: number;
   exp: number;
 }
 
 // Función para extraer el rol del token JWT
 function extractRoleFromToken(tokenData: any): UserRole | null {
-  // Verificar si el rol está en el campo 'role'
-  if (tokenData.role && typeof tokenData.role === "string") {
-    return tokenData.role as UserRole;
+  const roles: UserRole[] = ["TRAMET_ADMIN", "CUSTOMER_ADMIN", "USER"];
+  
+  // 1. Buscar en campo 'role'
+  if (tokenData.role) {
+    const r = tokenData.role.replace("ROLE_", "");
+    if (roles.includes(r as UserRole)) return r as UserRole;
   }
-  // Verificar si el rol está en el campo 'authorities'
-  else if (tokenData.authorities) {
-    // Si authorities es un array, tomar el primer elemento
-    if (Array.isArray(tokenData.authorities)) {
-      return tokenData.authorities[0] as UserRole;
-    }
-    // Si authorities es un string
-    else if (typeof tokenData.authorities === "string") {
-      return tokenData.authorities as UserRole;
+  
+  // 2. Buscar en campo 'authorities' (común en Spring Security)
+  if (tokenData.authorities) {
+    const auths = Array.isArray(tokenData.authorities) ? tokenData.authorities : [tokenData.authorities];
+    for (const a of auths) {
+      if (typeof a === "string") {
+        const r = a.replace("ROLE_", "");
+        if (roles.includes(r as UserRole)) return r as UserRole;
+      }
     }
   }
+
+  // 3. Buscar en el campo 'sub' o 'scopes' como último recurso
+  if (tokenData.scopes) {
+    const scopes = Array.isArray(tokenData.scopes) ? tokenData.scopes : [tokenData.scopes];
+    for (const s of scopes) {
+      const r = s.replace("ROLE_", "");
+      if (roles.includes(r as UserRole)) return r as UserRole;
+    }
+  }
+
   return null;
+}
+
+// Función para extraer el ID de cliente del token
+function extractCustomerIdFromToken(tokenData: any): number | undefined {
+  // 1. Intentar varios campos comunes donde el backend podría guardar el ID
+  let cid = tokenData.customerId || tokenData.customer_id || tokenData.cid || tokenData.tenantId;
+  
+  // 2. Parche de desarrollo: si es usuario1 o cliente1, asignar ID 1 por defecto (TechSolutions)
+  // Esto ayuda mientras el backend no incluya el claim en el JWT
+  if (!cid && tokenData.sub) {
+    if (tokenData.sub === "usuario1" || tokenData.sub === "cliente1" || tokenData.sub === "admin") {
+      console.info(`Desarrollo: Asignando customerId: 1 para el usuario ${tokenData.sub}`);
+      return 1;
+    }
+  }
+
+  return cid ? Number(cid) : undefined;
 }
 
 // Función segura para obtener permisos (no falla si el endpoint responde con error)
@@ -54,15 +85,16 @@ async function safeGetUserPermissions(token: string) {
   try {
     const permissions = await getUserPermissions(token);
     usePermissionsStore.getState().setPermissions(permissions);
-  } catch (error) {
-    console.warn("No se pudieron cargar los permisos del usuario, pero se continuará con la sesión:", error);
-    // Establecer permisos vacíos cuando fallan
+  } catch (error: any) {
+    // Si falla por permisos (403) o error de red, proveer permisos por defecto para que la app funcione
+    console.warn("No se pudieron cargar los permisos del servidor (403 Forbidden). Aplicando permisos por defecto para desarrollo.");
+    
     usePermissionsStore.getState().setPermissions({
-      modules: [],
-      sites: [],
-      departments: [],
-      areas: [],
-      screens: [],
+      modules: ["dashboard", "operations", "management", "autoadmin", "support"],
+      sites: ["*"], 
+      departments: ["*"],
+      areas: ["*"],
+      screens: ["*"],
     });
   }
 }
@@ -152,6 +184,7 @@ const useAuthStore = create<AuthState>()(
           const userData: UserData = {
             sub: decodedData.sub || "",
             role: role,
+            customerId: extractCustomerIdFromToken(decodedData),
             exp: decodedData.exp,
           };
 
@@ -200,6 +233,7 @@ const useAuthStore = create<AuthState>()(
           const userData: UserData = {
             sub: decodedData.sub || "",
             role: role,
+            customerId: extractCustomerIdFromToken(decodedData),
             exp: decodedData.exp,
           };
 

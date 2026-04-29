@@ -1,27 +1,7 @@
 // hook to get customers from the API
 import { create } from "zustand";
 
-type Customer = {
-  name: string;
-  details: {
-    mission: string;
-    vision: string;
-    companyValues: string;
-    history: string;
-    goals: string;
-    fiscalData: string;
-    digitalContract: string;
-  };
-  info: {
-    logo: string;
-    direction: string;
-    coordinates: string;
-    finalCost: number;
-    paymentPeriod: string;
-    contractPlan: string;
-    status: boolean;
-  };
-};
+import { Customer } from "@trm/_types/customer";
 
 interface CustomersState {
   customers: Customer[];

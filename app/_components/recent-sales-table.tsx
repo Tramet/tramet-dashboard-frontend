@@ -110,7 +110,7 @@ export function RecentSalesTable() {
       <DataTable
         data={data}
         columns={columns}
-        filterColumn={`product`}
+        filterColumn={{ key: "product", label: "Producto" }}
         pageSize={5}></DataTable>
     </div>
   );

@@ -16,7 +16,7 @@ export class UserService {
   static async fetchUsers(token: string): Promise<User[]> {
     try {
       // Obtener usuarios reales mediante la API
-      const apiUsers = await getAllUsers(token);
+      const apiUsers = await getAllUsers();
       
       // Mapear la estructura de la API a la estructura esperada por el frontend
       const processedUsers: User[] = apiUsers.map(apiUser => {
@@ -51,7 +51,7 @@ export class UserService {
       }
       
       // Eliminar usuario mediante la API
-      await deleteUser(token, userId);
+      await deleteUser(userId);
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
       throw error;

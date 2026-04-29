@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@trm/_components/ui/card";
@@ -21,9 +20,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@trm/_components/ui/popover";
-import { Bell } from "lucide-react";
+import { Bell, Inbox } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@trm/_components/ui/scroll-area";
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+      <Inbox className="h-10 w-10 mb-2 opacity-40" />
+      <p className="text-sm">{message}</p>
+    </div>
+  );
+}
+
 export function NotificationsPopover() {
   const [tab, setTab] = useState("alerts");
 
@@ -65,11 +74,12 @@ export function NotificationsPopover() {
               <CardHeader>
                 <CardTitle>Alertas</CardTitle>
                 <CardDescription>
-                  Make changes to your account here. Click save when you're
-                  done.
+                  Notificaciones importantes que requieren tu atención.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2"></CardContent>
+              <CardContent className="space-y-2">
+                <EmptyState message="No hay alertas pendientes" />
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -78,10 +88,12 @@ export function NotificationsPopover() {
               <CardHeader>
                 <CardTitle>Autorizaciones</CardTitle>
                 <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
+                  Solicitudes pendientes de aprobación o revisión.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2"></CardContent>
+              <CardContent className="space-y-2">
+                <EmptyState message="No hay autorizaciones pendientes" />
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -90,10 +102,12 @@ export function NotificationsPopover() {
               <CardHeader>
                 <CardTitle>Avisos</CardTitle>
                 <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
+                  Comunicados y avisos generales del sistema.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2"></CardContent>
+              <CardContent className="space-y-2">
+                <EmptyState message="No hay avisos nuevos" />
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -102,10 +116,12 @@ export function NotificationsPopover() {
               <CardHeader>
                 <CardTitle>Calendario</CardTitle>
                 <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
+                  Eventos y fechas importantes próximas.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2"></CardContent>
+              <CardContent className="space-y-2">
+                <EmptyState message="No hay eventos programados" />
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -114,10 +130,12 @@ export function NotificationsPopover() {
               <CardHeader>
                 <CardTitle>Seguimiento personal</CardTitle>
                 <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
+                  Tareas y actividades asignadas a tu perfil.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2"></CardContent>
+              <CardContent className="space-y-2">
+                <EmptyState message="No hay actividades de seguimiento" />
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

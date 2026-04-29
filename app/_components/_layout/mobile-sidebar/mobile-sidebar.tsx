@@ -1,92 +1,75 @@
+"use client";
+
 import { Button } from "@trm/_components/ui/button";
-import { Input } from "@trm/_components/ui/input";
-import { Label } from "@trm/_components/ui/label";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@trm/_components/ui/sheet";
-import { LogOut, Menu, User } from "lucide-react";
-import { SideBar } from "../sidebar/sidebar";
+import { LogOut, Menu } from "lucide-react";
 import CompanyLogo from "../company-logo/company-logo";
-import { Combobox } from "../combobox/combobox";
-import { COMBOBOX_LISTS } from "../combobox/comboboxLists";
-import useSiteSelection from "@trm/_hooks/use-site-selection";
-import useDepartmentSelection from "@trm/_hooks/use-department-selection";
-import useAreaSelection from "@trm/_hooks/use-area-selection";
-import { useState } from "react";
-import { Avatar, AvatarImage } from "@trm/_components/ui/avatar";
-import { type UserDetails } from "@trm/_layout/header/header";
-import { AvatarFallback } from "@trm/_components/ui/avatar";
-import { SIDENAV_ITEMS } from "@trm/sidebar-modules";
+import useContextStore from "@trm/_hooks/use-context-store";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@trm/_components/ui/avatar";
 import SideBarMenuGroup from "@trm/_components/sidebar-menu-group";
 import { usePathname, useRouter } from "next/navigation";
 import { Separator } from "@trm/_components/ui/separator";
 import { getContextModules } from "@trm/sidebar-modules";
 import { useAuth } from "@trm/_lib/auth/auth-context";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@trm/_components/ui/dropdown-menu";
-
-const USER: UserDetails = {
-  id: 1,
-  fullName: "Daniel Anaya Perez",
-  email: "daniel@example.com",
-  status: "Online",
-  img: "/avatars/02.png",
-  position: "Gerente",
-};
+import { getSites } from "@trm/_api/sites";
+import { getDepartments } from "@trm/_api/departments";
+import { AREAS_LIST } from "@trm/_components/_layout/carousel-areas/areas-list";
 
 export function MobileSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const isAdminPage = pathname.includes("/admin");
 
-  // Hooks para el contexto de selección
-  const { selectedSite, setSite } = useSiteSelection();
-  const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
-  const { selectedArea, setSelectedArea } = useAreaSelection();
+  const { 
+    selectedSite,
+    selectedDepartment,
+    selectedArea 
+  } = useContextStore();
 
-  // Hook para obtener la información del usuario autenticado
   const { userData, logout } = useAuth();
-
-  // Estado para controlar la apertura del panel lateral
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // Obtener los ítems de navegación basados en el contexto y rol del usuario
-  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, userData?.role);
+  // Estados para etiquetas resueltas
+  const [siteLabel, setSiteLabel] = useState<string>("");
+  const [deptLabel, setDeptLabel] = useState<string>("");
+  const [areaLabel, setAreaLabel] = useState<string>("");
 
-  // Manejadores para los cambios en los selectores
-  const handleSiteChange = (value: string | null) => {
-    setSite(value);
-    // Al cambiar el sitio, reseteamos departamento y área
-    if (value !== selectedSite) {
-      setSelectedDepartment(null);
-      setSelectedArea(null);
-    }
-  };
+  useEffect(() => {
+    const resolveLabels = async () => {
+      if (selectedSite) {
+        try {
+          const sites = await getSites();
+          const site = sites.find(s => s.id.toString() === selectedSite);
+          setSiteLabel(site?.site || selectedSite);
+        } catch (e) { setSiteLabel(selectedSite); }
+      }
+      if (selectedDepartment) {
+        try {
+          const depts = await getDepartments();
+          const dept = depts.find(d => d.id.toString() === selectedDepartment);
+          setDeptLabel(dept?.name || selectedDepartment);
+        } catch (e) { setDeptLabel(selectedDepartment); }
+      }
+      if (selectedArea) {
+        const area = AREAS_LIST.find(a => a.path === selectedArea);
+        setAreaLabel(area?.name || selectedArea);
+      }
+    };
+    resolveLabels();
+  }, [selectedSite, selectedDepartment, selectedArea]);
 
-  const handleDepartmentChange = (value: string | null) => {
-    setSelectedDepartment(value);
-    // Al cambiar el departamento, reseteamos el área
-    if (value !== selectedDepartment) {
-      setSelectedArea(null);
-    }
-  };
+  const navItems = getContextModules(selectedSite, selectedDepartment, selectedArea, userData?.role, pathname);
 
   const handleLogout = () => {
     logout();
-    setIsSheetOpen(false); // Cerrar el sidebar móvil
+    setIsSheetOpen(false);
     router.push("/login");
   };
 
@@ -110,19 +93,18 @@ export function MobileSidebar() {
 
           {!isAdminPage && (
             <div className="w-full mb-4">
-              {/* Información del contexto seleccionado */}
               {selectedSite && selectedDepartment && selectedArea && (
-                <div className="bg-muted p-2 rounded-md mt-2 mb-4">
-                  <p className="text-sm font-medium">Contexto actual:</p>
-                  <div className="grid grid-cols-1 gap-1 mt-1">
-                    <p className="text-xs text-muted-foreground">
-                      Sitio: <span className="text-foreground">{selectedSite}</span>
+                <div className="bg-muted p-3 rounded-lg mt-2 mb-4 border border-border/50">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contexto Operativo</p>
+                  <div className="space-y-1">
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Sitio:</span> <span className="font-medium text-foreground">{siteLabel}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Departamento: <span className="text-foreground">{selectedDepartment}</span>
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Depto:</span> <span className="font-medium text-foreground">{deptLabel}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Área: <span className="text-foreground">{selectedArea}</span>
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Área:</span> <span className="font-medium text-primary">{areaLabel}</span>
                     </p>
                   </div>
                 </div>
@@ -130,9 +112,8 @@ export function MobileSidebar() {
             </div>
           )}
 
-          <Separator className="my-2" />
+          <Separator className="my-4" />
 
-          {/* Menú de navegación */}
           <div className="w-full overflow-y-auto max-h-[calc(100vh-350px)]">
             <nav className="flex flex-col gap-2 transition duration-300 ease-in-out">
               <div className="flex flex-col gap-2 px-1 min-w-auto">
@@ -144,7 +125,6 @@ export function MobileSidebar() {
           </div>
         </div>
 
-        {/* Footer con información del usuario y menú desplegable */}
         {userData && (
           <SheetFooter className="w-full border-t pt-4 mt-4">
             <div className="flex items-center justify-between w-full">
@@ -154,12 +134,12 @@ export function MobileSidebar() {
                   <AvatarFallback>{userData.sub ? userData.sub.substring(0, 2).toUpperCase() : "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start justify-center">
-                  <span className="text-xs opacity-70">
+                  <span className="text-[10px] uppercase font-bold opacity-50 tracking-tighter">
                     {userData.role === "TRAMET_ADMIN" || userData.role === "CUSTOMER_ADMIN"
                       ? "Administrador"
                       : "Usuario"}
                   </span>
-                  <span className="text-sm text-sidebar-foreground">{userData.sub || "Usuario"}</span>
+                  <span className="text-sm font-semibold text-sidebar-foreground">{userData.sub || "Usuario"}</span>
                 </div>
               </div>
               <Button

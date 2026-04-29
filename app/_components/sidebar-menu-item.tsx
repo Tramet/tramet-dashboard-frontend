@@ -6,9 +6,8 @@ import classNames from "classnames";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
-import useAreaSelection from "@trm/_hooks/use-area-selection";
-import useDepartmentSelection from "@trm/_hooks/use-department-selection";
-import useSiteSelection from "@trm/_hooks/use-site-selection";
+import useContextStore from "@trm/_hooks/use-context-store";
+import { toast } from "sonner";
 import { BsChevronDown, BsChevronRight } from "react-icons/bs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { useTheme } from "next-themes";
@@ -16,9 +15,11 @@ import { useTheme } from "next-themes";
 export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   const { toggleCollapse } = useSideBarToggle();
   const pathname = usePathname();
-  const { selectedArea, setSelectedArea } = useAreaSelection();
-  const { selectedDepartment, setSelectedDepartment } = useDepartmentSelection();
-  const { selectedSite, setSite } = useSiteSelection();
+  const { 
+    selectedArea, setArea, 
+    selectedDepartment, setDepartment, 
+    selectedSite, setSite 
+  } = useContextStore();
   const router = useRouter();
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const { theme } = useTheme();
@@ -31,8 +32,8 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
   const handleResetContext = () => {
     // Resetear el contexto
     setSite(null);
-    setSelectedDepartment(null);
-    setSelectedArea(null);
+    setDepartment(null);
+    setArea(null);
     // Navegar al dashboard para mostrar el flujo de selección
     router.push("/dashboard");
   };
@@ -113,9 +114,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                       if (!subItem.path) return;
                       if (subItem.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
                         e.preventDefault();
-                        window.alert(`Para acceder a esta sección, primero selecciona: ${
-                          (!selectedSite ? "Sitio" : "") +
-                          (!selectedDepartment ? "Departamento" : "") +
+                        toast.error(`Para acceder a esta sección, primero selecciona: ${
+                          (!selectedSite ? "Sitio " : "") +
+                          (!selectedDepartment ? "Departamento " : "") +
                           (!selectedArea ? "Área" : "")
                         }`);
                         return;
@@ -166,9 +167,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
                   if (!subItem.path) return;
                   if (subItem.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
                     e.preventDefault();
-                    window.alert(`Para acceder a esta sección, primero selecciona: ${
-                      (!selectedSite ? "Sitio" : "") +
-                      (!selectedDepartment ? "Departamento" : "") +
+                    toast.error(`Para acceder a esta sección, primero selecciona: ${
+                      (!selectedSite ? "Sitio " : "") +
+                      (!selectedDepartment ? "Departamento " : "") +
                       (!selectedArea ? "Área" : "")
                     }`);
                     return;
@@ -199,9 +200,9 @@ export const SideBarMenuItem = ({ item }: { item: SideNavItem }) => {
         if (!item.path) return;
         if (item.path.includes("/dashboard/") && (!selectedSite || !selectedDepartment || !selectedArea)) {
           e.preventDefault();
-          window.alert(`Para acceder a esta sección, primero selecciona: ${
-            (!selectedSite ? "Sitio" : "") +
-            (!selectedDepartment ? "Departamento" : "") +
+          toast.error(`Para acceder a esta sección, primero selecciona: ${
+            (!selectedSite ? "Sitio " : "") +
+            (!selectedDepartment ? "Departamento " : "") +
             (!selectedArea ? "Área" : "")
           }`);
           return;

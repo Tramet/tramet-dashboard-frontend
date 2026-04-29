@@ -44,30 +44,11 @@ import Image from "next/image";
 import { Checkbox } from "@trm/_components/ui/checkbox";
 import { getCustomers } from "@trm/_api/customers";
 import { useGetCustomers } from "@trm/_hooks/use-get-customers";
+import { Customer } from "@trm/_types/customer";
 
-export type Customer = {
-  name: string;
-  details: {
-    mission: string;
-    vision: string;
-    companyValues: string;
-    history: string;
-    goals: string;
-    fiscalData: string;
-    digitalContract: string;
-  };
-  info: {
-    logo: string;
-    address: string;
-    coordinates: string;
-    finalCost: number;
-    paymentPeriod: string;
-    contractPlan: string;
-    status: boolean;
-  };
-};
 
-export const columns: ColumnDef<Customer>[] = [
+
+export const columns: ColumnDef<Customer, any>[] = [
   {
     accessorKey: "select",
     header: ({ table }) => (
@@ -93,15 +74,24 @@ export const columns: ColumnDef<Customer>[] = [
   {
     accessorKey: "details.logo",
     header: "Logo",
-    cell: ({ row }) => (
-      <Image
-        src={row.original.info.logo}
-        alt="Company Logo"
-        width={40}
-        height={40}
-        className="size-8"
-      />
-    ),
+    cell: ({ row }) => {
+      const logoSrc = row.original.info.logo;
+      // Parche: Si el logo es uno de los genéricos del seed que no existen en public, usar el logo de Tramet
+      const isMissingLogo = ["logo1.png", "logo2.png", "logo3.png"].includes(logoSrc);
+      const src = isMissingLogo || !logoSrc 
+        ? "/tramet.png" 
+        : (logoSrc.startsWith("http") || logoSrc.startsWith("/") ? logoSrc : `/${logoSrc}`);
+        
+      return (
+        <Image
+          src={src}
+          alt="Company Logo"
+          width={40}
+          height={40}
+          className="size-8 object-contain"
+        />
+      );
+    },
     enableSorting: false,
     enableHiding: true,
   },
@@ -175,7 +165,7 @@ export function TrametCustomersTable() {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getCustomers();
-      setCustomers(data);
+      setCustomers(data as Customer[]);
     };
 
     fetchData();

@@ -33,8 +33,10 @@ import {
   SelectValue,
 } from "@trm/_components/ui/select";
 import { useEffect } from "react";
-import { getCustomers } from "@trm/_api/customers";
+import { getCustomers, createCustomer } from "@trm/_api/customers";
 import { useGetCustomers } from "@trm/_hooks/use-get-customers";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 // Define el esquema de validación para el formulario
 const formSchema = z.object({
@@ -92,6 +94,7 @@ export function CreateCustomerDialog() {
   });
 
   const { customers, setCustomers } = useGetCustomers();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Maneja la presentación de errores del formulario
   const { errors } = form.formState;
@@ -103,14 +106,35 @@ export function CreateCustomerDialog() {
 
   // Función para manejar el envío del formulario
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Lógica para enviar los datos a la API
-    onCreateCustomer(values);
-    // Cerrar el diálogo
-    onClose();
+    try {
+      // Transformar "status" a entero si es necesario ("active" -> 1, "inactive" -> 0)
+      const dataToSubmit = {
+        ...values,
+        info: {
+          ...values.info,
+          status: values.info.status === "active" ? 1 : 0
+        }
+      };
+      
+      await createCustomer(dataToSubmit);
+      toast.success("Cliente creado con éxito");
+      
+      // Refrescar lista de clientes si existe la función
+      if (typeof setCustomers === 'function') {
+        const updated = await getCustomers();
+        // setCustomers(updated);
+      }
+      
+      form.reset();
+      setIsOpen(false);
+    } catch (error) {
+      toast.error("Error al crear cliente");
+      console.error(error);
+    }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Crear Cliente</Button>
       </DialogTrigger>

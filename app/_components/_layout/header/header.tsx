@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@trm/_components/ui/avatar"
 import { NotificationsPopover } from "../notifications-popover/notifications-popover";
 import { MobileSidebar } from "../mobile-sidebar/mobile-sidebar";
 import CompanyLogo from "../company-logo/company-logo";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@trm/_components/ui/button";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import { useTheme } from "next-themes";
@@ -40,8 +40,17 @@ const USER: UserDetails = {
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { userData, logout } = useAuth();
   const { theme } = useTheme();
+  
+  const isAdminPath = pathname.startsWith("/admin");
+  const isOperationalPath = pathname.startsWith("/dashboard");
+  const isAdmin = userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN";
+
+  // El selector de contexto solo se muestra en el dashboard operativo
+  // o si un usuario normal está en la raíz. Los admins en /admin no deben verlo.
+  const showContextSelector = isOperationalPath || (!isAdmin && !isAdminPath);
 
   const handleLogout = () => {
     logout();
@@ -73,7 +82,7 @@ export default function Header() {
           <CompanyLogo />
           <div className="hidden lg:block h-6 w-[1px] bg-border mx-2" />
           <div className="hidden lg:block">
-            <ContextSelector />
+            {showContextSelector && <ContextSelector />}
           </div>
         </section>
 
@@ -92,7 +101,7 @@ export default function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={userButtonStyle}>
-                  <Avatar className="h-9 w-9 border-2 border-white/20">
+                  <Avatar className="h-9 w-9 border-2 border-white/20 relative">
                     <AvatarImage
                       src={userData?.sub ? "/avatars/02.png" : USER.img}
                       alt={userData?.sub || USER.fullName}
@@ -101,6 +110,8 @@ export default function Header() {
                       {userData?.sub ? userData.sub.substring(0, 2).toUpperCase() : "TRM"}
                     </AvatarFallback>
                   </Avatar>
+                  {/* Indicador Online */}
+                  <span className="absolute bottom-0 left-7 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-900" />
                   <div className="hidden md:flex flex-col items-start justify-center ml-1">
                     <span className="text-[10px] uppercase tracking-wider opacity-70">
                       {userData?.role === "TRAMET_ADMIN" || userData?.role === "CUSTOMER_ADMIN"

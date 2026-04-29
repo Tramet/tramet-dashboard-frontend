@@ -43,6 +43,7 @@ export type User = {
   id: string;
   user: string;
   position?: string;
+  customerName?: string;
   permissions?: {
     sites: string[];
     departments: string[];
@@ -256,13 +257,18 @@ export function AdminUsersTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  // Estado para el filtro de posición
+  
+  // Estados para filtros
   const [positionFilter, setPositionFilter] = useState<string>("");
+  const [customerFilter, setCustomerFilter] = useState<string>("");
+  
   // Estado para el diálogo de confirmación de eliminación
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
-  // Obtener el token de autenticación
-  const { token, isAuthenticated } = useAuth();
+  
+  // Obtener estado de autenticación y rol
+  const { isAuthenticated, userData: authUser } = useAuth();
+  const isTrametAdmin = authUser?.role === "TRAMET_ADMIN";
   // Verificar si está en modo desktop
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -296,6 +302,19 @@ export function AdminUsersTable() {
       enableHiding: true,
     },
     {
+      accessorKey: "customerName",
+      header: ({ column }) => {
+        return generateSortableColumnHeader(column, "Empresa");
+      },
+      cell: ({ row }) => (
+        <span className={row.original.customerName === "Tramet" ? "text-primary font-semibold" : ""}>
+          {row.original.customerName || "SaaS Global"}
+        </span>
+      ),
+      enableSorting: true,
+      enableHiding: true,
+    },
+    {
       id: "permissions",
       header: "Permisos",
       cell: ({ row }) => (
@@ -308,11 +327,11 @@ export function AdminUsersTable() {
             siteMetadata={siteMetadata}
             onPermissionsChange={async (updatedPermissions) => {
               try {
-                if (!token || !isAuthenticated) {
-                  throw new Error("No hay un token de autenticación válido");
+                if (!isAuthenticated) {
+                  throw new Error("No estás autenticado");
                 }
 
-                await updateUserPermissions(token, row.original.id, updatedPermissions);
+                await updateUserPermissions(row.original.id, updatedPermissions);
                 toast.success("Permisos actualizados correctamente");
                 fetchUsers(); // Recargar la lista para mostrar los cambios
               } catch (error) {
@@ -379,7 +398,7 @@ export function AdminUsersTable() {
       }
 
       // Obtener usuarios reales mediante la API
-      const apiUsers = await getAllUsers(token as string);
+      const apiUsers = await getAllUsers();
       
       // Mostrar los datos crudos de la API para debugging
       console.log("Datos crudos de usuarios desde la API:", apiUsers);
@@ -393,6 +412,7 @@ export function AdminUsersTable() {
           id: apiUser.id.toString(),
           user: apiUser.username,
           position: apiUser.role.name,
+          customerName: apiUser.username === "admin" ? "Tramet" : "Empresa Cliente", // Temporal hasta tener real mapping
           permissions: mockedUser?.permissions || defaultPermissions,
         };
       });
@@ -429,7 +449,7 @@ export function AdminUsersTable() {
     // Eliminar usuario mediante la API con toast promise
     await toast
       .promise(
-        deleteUser(token as string, userId),
+        deleteUser(userId),
         {
           loading: "Eliminando usuario...",
           success: "Usuario eliminado con éxito",
@@ -478,15 +498,36 @@ export function AdminUsersTable() {
     }));
   }, [availablePositions]);
 
-  // Filtrar usuarios por posición antes de pasarlos a la tabla
+  // Obtener todas las empresas únicas para el filtro
+  const availableCustomers = React.useMemo(() => {
+    const customers = users.map((user) => user.customerName || "SaaS Global");
+    return Array.from(new Set(customers)).sort();
+  }, [users]);
+
+  const customerOptions = React.useMemo(() => {
+    return availableCustomers.map((cust, index) => ({
+      id: index,
+      value: cust,
+      label: cust,
+    }));
+  }, [availableCustomers]);
+
+  // Filtrar usuarios por posición y empresa antes de pasarlos a la tabla
   const filteredUsers = React.useMemo(() => {
-    if (!positionFilter) return users;
-    return users.filter((user) => (user.position || "No asignado") === positionFilter);
-  }, [users, positionFilter]);
+    return users.filter((user) => {
+      const matchesPosition = !positionFilter || (user.position || "No asignado") === positionFilter;
+      const matchesCustomer = !customerFilter || (user.customerName || "SaaS Global") === customerFilter;
+      return matchesPosition && matchesCustomer;
+    });
+  }, [users, positionFilter, customerFilter]);
 
   // Manejar cambios en el filtro de posición
   const handlePositionFilterChange = (value: string | null) => {
     setPositionFilter(value || "");
+  };
+
+  const handleCustomerFilterChange = (value: string | null) => {
+    setCustomerFilter(value || "");
   };
 
   // Cargar usuarios al montar el componente
@@ -559,6 +600,9 @@ export function AdminUsersTable() {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <Combobox name="Posición" comboboxList={positionOptions} onChange={handlePositionFilterChange} isDesktop={isDesktop} />
+          {isTrametAdmin && (
+            <Combobox name="Empresa" comboboxList={customerOptions} onChange={handleCustomerFilterChange} isDesktop={isDesktop} />
+          )}
         </div>
 
         <div className="flex flex-wrap justify-end items-center gap-2">
@@ -586,6 +630,7 @@ export function AdminUsersTable() {
                     id: "ID",
                     user: "Usuario",
                     position: "Puesto",
+                    customerName: "Empresa",
                     permissions: "Permisos",
                     actions: "Acciones",
                   };

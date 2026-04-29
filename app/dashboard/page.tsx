@@ -1,18 +1,55 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useAuth } from "@trm/_lib/auth/auth-context";
 import useContextStore from "@trm/_hooks/use-context-store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@trm/_components/ui/card";
-import { Button } from "@trm/_components/ui/button";
 import { useRouter } from "next/navigation";
 import { BsKanban, BsGear, BsListUl, BsEnvelope, BsHouseDoor } from "react-icons/bs";
+import { getSites, Site } from "@trm/_api/sites";
+import { getDepartments, Department } from "@trm/_api/departments";
+import { AREAS_LIST } from "@trm/_components/_layout/carousel-areas/areas-list";
 
 export default function DashboardPage() {
   const { userData } = useAuth();
   const { selectedSite, selectedDepartment, selectedArea } = useContextStore();
   const router = useRouter();
 
-  // Si no hay contexto, mostramos una bienvenida general con invitación a seleccionar
+  const [siteName, setSiteName] = useState<string>("");
+  const [deptName, setDeptName] = useState<string>("");
+  const [areaName, setAreaName] = useState<string>("");
+
+  useEffect(() => {
+    const resolveNames = async () => {
+      if (selectedSite) {
+        try {
+          const sites = await getSites();
+          const site = sites.find(s => s.id.toString() === selectedSite);
+          setSiteName(site?.site || selectedSite);
+        } catch (e) {
+          setSiteName(selectedSite);
+        }
+      }
+
+      if (selectedDepartment) {
+        try {
+          const depts = await getDepartments();
+          const dept = depts.find(d => d.id.toString() === selectedDepartment);
+          setDeptName(dept?.name || selectedDepartment);
+        } catch (e) {
+          setDeptName(selectedDepartment);
+        }
+      }
+
+      if (selectedArea) {
+        const area = AREAS_LIST.find(a => a.path === selectedArea);
+        setAreaName(area?.name || selectedArea);
+      }
+    };
+
+    resolveNames();
+  }, [selectedSite, selectedDepartment, selectedArea]);
+
   const isContextComplete = !!(selectedSite && selectedDepartment && selectedArea);
 
   return (
@@ -22,9 +59,13 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Bienvenido, {userData?.sub || "Usuario"}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-lg">
             {isContextComplete 
-              ? `Gestionando ${selectedArea} en ${selectedDepartment} (${selectedSite})`
+              ? (
+                <span>
+                  Gestionando <span className="text-primary font-semibold">{areaName}</span> en <span className="text-primary font-semibold">{deptName}</span> ({siteName})
+                </span>
+              )
               : "Selecciona un sitio, departamento y área en la barra superior para comenzar."}
           </p>
         </header>
@@ -45,7 +86,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/operations/1")}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/dashboard/operations/almacenaje")}>
               <CardHeader className="flex flex-row items-center space-x-4 pb-2">
                 <div className="p-2 bg-primary/10 rounded-full">
                   <BsKanban className="w-6 h-6 text-primary" />
@@ -122,4 +163,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

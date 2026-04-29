@@ -1,148 +1,217 @@
-"use client";
-
-import { SideNavItemGroup } from "@trm/_types/type";
-
-import {
+import { ReactNode } from "react";
+import { 
+  BsHouseDoor, 
+  BsBuilding, 
+  BsWindowStack, 
+  BsPeople, 
+  BsKanban, 
+  BsGear, 
+  BsListUl, 
   BsEnvelope,
-  BsGear,
-  BsHouseDoor,
-  BsKanban,
-  BsListUl,
-  BsBuilding,
-  BsWindowStack,
-  BsPeople,
-  BsShieldLock,
   BsClipboard2Check,
-  BsArrowLeft,
-  BsArrowClockwise,
+  BsArrowLeftRight,
+  BsCreditCard,
+  BsShieldLock
 } from "react-icons/bs";
+import { UserPermissions } from "@trm/_types/permissions";
 
-// Get the module for a specific context (site, department, area)
+export interface NavItem {
+  title: string;
+  path?: string;
+  icon: ReactNode;
+  submenu?: boolean;
+  subMenuItems?: NavItem[];
+}
+
+export interface NavGroup {
+  [key: string]: {
+    title: string;
+    items: NavItem[];
+  };
+}
+
 export const getContextModules = (
   site: string | null,
   department: string | null,
   area: string | null,
-  userRole: string | null | undefined
-): SideNavItemGroup[] => {
-  // Base navigation structure
-  const navigation: SideNavItemGroup[] = [];
+  userRole: string | undefined,
+  pathname: string,
+  permissions?: UserPermissions
+): NavGroup[] => {
+  const navigation: NavGroup[] = [];
+  const isTrametAdmin = userRole === "TRAMET_ADMIN";
+  const isCustomerAdmin = userRole === "CUSTOMER_ADMIN";
+  const isAdmin = isTrametAdmin || isCustomerAdmin;
+  
+  const safePathname = pathname || "";
+  const isOperationalPath = safePathname.startsWith("/dashboard");
+  const isAdminPath = safePathname.startsWith("/admin");
 
-  // Determinar si es un administrador
-  const isAdmin = userRole === "TRAMET_ADMIN" || userRole === "CUSTOMER_ADMIN";
+  // --- MODO ADMINISTRACIÓN ---
+  if (isAdmin && (isAdminPath || !isOperationalPath)) {
+    
+    // Grupo 1: Gestión de Plataforma (Solo Super Admin)
+    if (isTrametAdmin) {
+      navigation.push({
+        platform: {
+          title: "Plataforma SaaS",
+          items: [
+            {
+              title: "Dashboard SaaS",
+              path: "/admin",
+              icon: <BsHouseDoor size={20} />,
+            },
+            {
+              title: "Clientes (Empresas)",
+              path: "/admin/tramet-customers",
+              icon: <BsBuilding size={20} />,
+            },
+            {
+              title: "Suscripciones Globales",
+              path: "/admin/subscriptions",
+              icon: <BsCreditCard size={20} />,
+            }
+          ]
+        }
+      });
+    } else if (isCustomerAdmin) {
+      // Para Admin de Cliente, su dashboard es diferente
+      navigation.push({
+        platform: {
+          title: "Gestión de Cuenta",
+          items: [
+            {
+              title: "Dashboard Admin",
+              path: "/admin",
+              icon: <BsHouseDoor size={20} />,
+            },
+            {
+              title: "Mi Suscripción",
+              path: "/admin/subscriptions",
+              icon: <BsCreditCard size={20} />,
+            }
+          ]
+        }
+      });
+    }
 
-  // Solo mostrar la sección "Inicio" para usuarios regulares, no para administradores
-  if (!isAdmin) {
+    // Grupo 2: Mi Organización (Estructura y Usuarios)
+    const orgItems: NavItem[] = [
+      {
+        title: "Departamentos",
+        path: "/admin/departments",
+        icon: <BsShieldLock size={20} />,
+      },
+      {
+        title: "Sitios",
+        path: "/admin/sites",
+        icon: <BsWindowStack size={20} />,
+      },
+      {
+        title: "Usuarios / Equipo",
+        path: "/admin/users",
+        icon: <BsPeople size={20} />,
+      },
+    ];
+
     navigation.push({
-      home: {
-        title: "Inicio",
-        items: [
-          {
-            title: "Dashboard",
-            path: "/dashboard",
-            icon: <BsHouseDoor size={20} />,
-          },
-        ],
+      organization: {
+        title: isTrametAdmin ? "Gestión Tramet" : "Gestión Interna",
+        items: orgItems,
       },
     });
+
+    // Grupo Especial: Cambio de Plano (Footer)
+    navigation.push({
+      footer: {
+        title: "",
+        items: [
+          {
+            title: "Ir a Panel Operativo",
+            path: "/dashboard",
+            icon: <BsArrowLeftRight size={20} />,
+          }
+        ]
+      }
+    });
+    
+    if (isAdminPath) return navigation;
   }
 
-  // Siempre incluir opción para volver a seleccionar contexto
-  // if it's a complete context, show it as a "Reset selection" button
-  if (site && department && area && !isAdmin) {
-    // Asegurarse de que el objeto home existe
-    if (navigation[0] && navigation[0].home) {
-      navigation[0].home.items = [
-        {
-          title: "Volver a selección",
-          path: "/dashboard",
-          icon: <BsArrowClockwise size={20} />,
-          onClick: "resetContext", // Este atributo será usado para identificar la acción en el componente
-        },
-      ];
-    }
-  }
+  // --- MODO OPERATIVO ---
+  if (site && department && area && (isOperationalPath || !isAdmin)) {
+    const operationalItems: NavItem[] = [
+      {
+        title: "Dashboard Op.",
+        path: "/dashboard",
+        icon: <BsHouseDoor size={20} />,
+      },
+      {
+        title: "Operaciones",
+        icon: <BsKanban size={20} />,
+        submenu: true,
+        subMenuItems: [
+          { title: "Almacenaje", path: "/dashboard/operations/almacenaje", icon: <BsKanban size={20} /> },
+          { title: "Procesamiento", path: "/dashboard/operations/procesamiento", icon: <BsKanban size={20} /> },
+          { title: "Pick & Pack", path: "/dashboard/operations/pick-pack", icon: <BsKanban size={20} /> },
+          { title: "Logística Inversa", path: "/dashboard/operations/logistica-inversa", icon: <BsKanban size={20} /> },
+          { title: "Maquila", path: "/dashboard/operations/maquila", icon: <BsKanban size={20} /> },
+          { title: "Valor Agregado", path: "/dashboard/operations/valor-agregado", icon: <BsKanban size={20} /> },
+          { title: "Tráfico", path: "/dashboard/operations/trafico", icon: <BsKanban size={20} /> },
+          { title: "Embarques", path: "/dashboard/operations/embarques", icon: <BsKanban size={20} /> },
+          { title: "Otros", path: "/dashboard/operations/otros", icon: <BsKanban size={20} /> },
+        ].filter(item => {
+          // Si no hay permisos definidos, mostramos todo en desarrollo
+          if (!permissions || permissions.departments.length === 0) return true;
+          // Si hay permisos, solo mostramos si el departamento está en la lista de permitidos/contratados
+          // Nota: El título del item debe coincidir o mapearse con el nombre del depto en el backend
+          return permissions.departments.includes(item.title);
+        }),
+      },
+      {
+        title: "Gestión",
+        path: "/dashboard/management",
+        icon: <BsGear size={20} />,
+      },
+      {
+        title: "Auto-admin.",
+        path: "/dashboard/autoadmin",
+        icon: <BsListUl size={20} />,
+      },
+      {
+        title: "Material de apoyo",
+        path: "/dashboard/support",
+        icon: <BsEnvelope size={20} />,
+      },
+    ];
 
-  // Si hay un contexto completo y no es admin, mostrar módulos adicionales
-  if (site && department && area && !isAdmin) {
     navigation.push({
       modules: {
-        title: `Área: ${area}`,
-        items: [
-          {
-            title: "Dashboard",
-            path: "/dashboard",
-            icon: <BsHouseDoor size={20} />,
-          },
-          {
-            title: "Operaciones",
-            icon: <BsKanban size={20} />,
-            submenu: true,
-            subMenuItems: [
-              {
-                title: "Operacion 1",
-                path: "/dashboard/operations/1",
-                icon: <BsKanban size={20} />,
-              },
-              {
-                title: "Operacion 2",
-                path: "/dashboard/operations/2",
-                icon: <BsKanban size={20} />,
-              },
-            ],
-          },
-          {
-            title: "Gestión",
-            path: "/dashboard/management",
-            icon: <BsGear size={20} />,
-          },
-          {
-            title: "Auto-admin.",
-            path: "/dashboard/autoadmin",
-            icon: <BsListUl size={20} />,
-          },
-          {
-            title: "Material de apoyo",
-            path: "/dashboard/support",
-            icon: <BsEnvelope size={20} />,
-          },
-        ],
+        title: "Operaciones de Área",
+        items: operationalItems,
       },
     });
-  }
 
-  // Incluir módulos de administración SOLO si el usuario tiene rol de administrador
-  if (isAdmin) {
-    navigation.push({
-      admin: {
-        title: "Administrador",
-        items: [
-          {
-            title: "Dashboard",
-            path: "/admin",
-            icon: <BsHouseDoor size={20} />,
-          },
-          {
-            title: "Departamentos",
-            path: "/admin/departments",
-            icon: <BsBuilding size={20} />,
-          },
-          {
-            title: "Sitios",
-            path: "/admin/sites",
-            icon: <BsWindowStack size={20} />,
-          },
-          {
-            title: "Usuarios",
-            path: "/admin/users",
-            icon: <BsPeople size={20} />,
-          },
-        ],
-      },
-    });
+    // Grupo Especial: Cambio de Plano (Footer)
+    if (isAdmin) {
+      navigation.push({
+        footer: {
+          title: "",
+          items: [
+            {
+              title: "Volver a Administración",
+              path: "/admin",
+              icon: <BsArrowLeftRight size={20} />,
+            }
+          ]
+        }
+      });
+    }
   }
 
   return navigation;
 };
 
-// Default export for backward compatibility
-export const SIDENAV_ITEMS: SideNavItemGroup[] = getContextModules(null, null, null, null);
+export const SIDENAV_ITEMS = (pathname: string): NavGroup[] => {
+  return [];
+};

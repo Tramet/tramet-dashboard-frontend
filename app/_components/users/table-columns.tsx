@@ -81,7 +81,7 @@ export const getUsersTableColumns = ({
                   throw new Error("No hay un token de autenticación válido");
                 }
                 
-                await updateUserPermissions(token, row.original.id, updatedPermissions);
+                await updateUserPermissions(row.original.id, updatedPermissions);
                 toast.success("Permisos actualizados correctamente");
                 onRefresh(); // Recargar la lista para mostrar los cambios
               } catch (error) {
