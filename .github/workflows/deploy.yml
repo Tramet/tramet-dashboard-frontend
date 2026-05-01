@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/tramet-frontend
+  IMAGE_NAME: tramet/tramet-frontend
 
 jobs:
   build-and-push:
